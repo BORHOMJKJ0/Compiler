@@ -1,0 +1,3 @@
+antlr4 MyLexer.g4 -Dlanguage=Python3
+python testLexer.py
+python token_viewer.py

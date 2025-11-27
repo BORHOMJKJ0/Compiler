@@ -1,0 +1,18 @@
+{
+    "sourceFile": "testLexer.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1764232360757,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1764232360757,
+            "name": "Commit-0",
+            "content": "from antlr4 import *\nfrom MyLexer import MyLexer\n\nRESET = \"\\033[0m\"\nRED = \"\\033[91m\"\nGREEN = \"\\033[92m\"\nYELLOW = \"\\033[93m\"\nBLUE = \"\\033[94m\"\nMAGENTA = \"\\033[95m\"\nCYAN = \"\\033[96m\"\nWHITE = \"\\033[97m\"\nORANGE = \"\\033[38;5;214m\"\n\n\ndef colorize(ttype, text):\n    if ttype == \"NUMBER\":\n        return GREEN + text + RESET\n    if ttype == \"STRING\":\n        return MAGENTA + text + RESET\n    if ttype == \"IDENTIFIER\":\n        return BLUE + text + RESET\n    if ttype == \"KEYWORD\":\n        return YELLOW + text + RESET\n    if ttype == \"OPERATOR\":\n        return RED + text + RESET\n    if ttype == \"VARIABLE\":\n        return ORANGE + text + RESET\n    return WHITE + text + RESET\n\n\ndef main():\n    input_stream = FileStream(\"sqlInput.txt\", encoding=\"utf-8\")\n    lexer = MyLexer(input_stream)\n    tokens = lexer.getAllTokens()\n\n    if not tokens:\n        print(\"No tokens found!\")\n        return\n\n    line_width = max(len(str(t.line)) for t in tokens) + 2\n    col_width = max(len(str(t.column)) for t in tokens) + 2\n    type_width = max(\n        len(str(lexer.symbolicNames[t.type] or \"UNKNOWN\")) for t in tokens) + 2\n    val_width = max(len(str(t.text)) for t in tokens) + 2\n\n    print(CYAN + \"┌\" + \"─\"*(line_width) + \"┬\" + \"─\"*(col_width) +\n          \"┬\" + \"─\"*(type_width) + \"┬\" + \"─\"*(val_width) + \"┐\" + RESET)\n    print(f\"│ {'Line'.ljust(line_width-1)} │ {'Column'.ljust(col_width-1)} │ {'Token Type'.ljust(type_width-1)} │ {'Value'.ljust(val_width-1)} │\")\n    print(CYAN + \"├\" + \"─\"*(line_width) + \"┼\" + \"─\"*(col_width) +\n          \"┼\" + \"─\"*(type_width) + \"┼\" + \"─\"*(val_width) + \"┤\" + RESET)\n\n    for token in tokens:\n        ttype = lexer.symbolicNames[token.type] or \"UNKNOWN\"\n        colored_value = colorize(ttype, token.text)\n\n        ansi_length = len(colored_value) - len(token.text)\n        adjusted_width = val_width + ansi_length - 1\n\n        print(\n            f\"│ {str(token.line).ljust(line_width-1)} │ \"\n            f\"{str(token.column).ljust(col_width-1)} │ \"\n            f\"{ttype.ljust(type_width-1)} │ \"\n            f\"{colored_value.ljust(adjusted_width)} │\"\n        )\n\n    print(CYAN + \"└\" + \"─\"*(line_width) + \"┴\" + \"─\"*(col_width) +\n          \"┴\" + \"─\"*(type_width) + \"┴\" + \"─\"*(val_width) + \"┘\" + RESET)\n    print(f\"\\nTotal Tokens: {len(tokens)}\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+        }
+    ]
+}

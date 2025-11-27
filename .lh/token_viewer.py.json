@@ -1,0 +1,18 @@
+{
+    "sourceFile": "token_viewer.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1764232368567,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1764232368567,
+            "name": "Commit-0",
+            "content": "import tkinter as tk\nfrom tkinter import ttk\nfrom antlr4 import *\nfrom MyLexer import MyLexer\n\nTOKEN_COLORS = {\n    \"KEYWORD\": \"#f4d03f\",\n    \"IDENTIFIER\": \"#5dade2\",\n    \"STRING\": \"#af7ac5\",\n    \"NUMBER\": \"#58d68d\",\n    \"OPERATOR\": \"#ec7063\",\n    \"VARIABLE\": \"#e67e22\",\n    \"WS\": \"#eeeeee\"\n}\n\n\ndef load_tokens(filename=\"sqlInput.txt\"):\n    input_stream = FileStream(filename, encoding=\"utf-8\")\n    lexer = MyLexer(input_stream)\n    tokens = lexer.getAllTokens()\n    out = []\n    for t in tokens:\n        ttype = lexer.symbolicNames[t.type] or \"UNKNOWN\"\n        out.append((t.line, t.column, ttype, t.text))\n    return out\n\n\ndef main():\n    tokens = load_tokens()\n\n    window = tk.Tk()\n    window.title(\"SQL Token Viewer\")\n    window.geometry(\"1050x600\")\n\n    style = ttk.Style(window)\n    style.theme_use(\"default\")\n    style.configure(\"Treeview\", rowheight=24, font=(\"Consolas\", 11))\n    style.configure(\"Treeview.Heading\", font=(\"Consolas\", 12, \"bold\"))\n\n    frame = tk.Frame(window)\n    frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)\n\n    tree = ttk.Treeview(frame, columns=(\n        \"line\", \"col\", \"type\", \"value\"), show=\"headings\")\n    tree.heading(\"line\", text=\"Line\")\n    tree.heading(\"col\", text=\"Column\")\n    tree.heading(\"type\", text=\"Token Type\")\n    tree.heading(\"value\", text=\"Value\")\n\n    tree.column(\"line\", width=70, anchor=\"center\")\n    tree.column(\"col\", width=70, anchor=\"center\")\n    tree.column(\"type\", width=200, anchor=\"w\")\n    tree.column(\"value\", width=600, anchor=\"w\")\n\n    vsb = ttk.Scrollbar(frame, orient=\"vertical\", command=tree.yview)\n    hsb = ttk.Scrollbar(frame, orient=\"horizontal\", command=tree.xview)\n    tree.configure(yscroll=vsb.set, xscroll=hsb.set)\n\n    tree.grid(row=0, column=0, sticky=\"nsew\")\n    vsb.grid(row=0, column=1, sticky=\"ns\")\n    hsb.grid(row=1, column=0, sticky=\"ew\")\n    frame.grid_rowconfigure(0, weight=1)\n    frame.grid_columnconfigure(0, weight=1)\n\n    for line, col, ttype, value in tokens:\n        tree.insert(\"\", \"end\", values=(line, col, ttype, value), tags=(ttype,))\n\n    for ttype, color in TOKEN_COLORS.items():\n        tree.tag_configure(ttype, foreground=color)\n\n    status = tk.Label(\n        window, text=f\"Total Tokens: {len(tokens)}\", bd=1, relief=tk.SUNKEN, anchor=tk.W)\n    status.pack(side=tk.BOTTOM, fill=tk.X)\n\n    window.mainloop()\n\n\nif __name__ == \"__main__\":\n    main()\n"
+        }
+    ]
+}
