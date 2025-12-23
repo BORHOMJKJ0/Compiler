@@ -2,6 +2,8 @@ lexer grammar MyLexer;
 
 options { language = Python3; }
 
+tokens { KEYWORD }
+
 @lexer::header {
 KEYWORDS = {
     "ADD","ALL","ALTER","AND","ANY","AS","ASC","BETWEEN","BY","CASE","CHECK",
@@ -12,9 +14,19 @@ KEYWORDS = {
     "NOT","NULL","OFFSET","ON","OR","ORDER","OUTER","OVER","PARTITION",
     "PRIMARY","RETURNING","RIGHT","ROW","ROWS","SELECT","SET","TABLE",
     "THEN","TOP","TRUE","UNION","UNIQUE","UNNEST","UPDATE","USING","VALUES",
-    "WHEN","WHERE","WINDOW","WITH","VIEW","TRIGGER","FUNCTION","PROCEDURE","BEGIN","LOOP",
-    "REFERENCES","GRANT","REVOKE","TEMP","TEMPORARY",
-    "REPLACE","MATERIALIZED","ESCAPE","DECLARE", "KEY", "FIRST", "ONLY",
+    "WHEN","WHERE","WINDOW","WITH","VIEW","TRIGGER","FUNCTION","PROCEDURE",
+    "BEGIN","LOOP","REFERENCES","GRANT","REVOKE","TEMP","TEMPORARY",
+    "REPLACE","MATERIALIZED","ESCAPE","DECLARE","KEY","FIRST","ONLY",
+    "TRY","CATCH","EXEC","GO","QUOTENAME","RAISERROR","NVARCHAR","INT",
+    "BIGINT","MAX","ERROR_MESSAGE","ERROR_SEVERITY","ERROR_STATE",
+    "SCHEMA_NAME","SCHEMA","NAME","OBJECT","TYPE","INFORMATION_SCHEMA",
+    "TABLES","BASE","COLUMNS","KEYS","PARENT","CONSTRAINTS",
+    "NCHAR","VARCHAR","CHAR","DATETIME","DATE","TIME","FLOAT","REAL",
+    "NUMERIC","DECIMAL","MONEY","SMALLMONEY","BIT","TINYINT","SMALLINT",
+    "CURSOR","IDENTITY","SEQUENCES","OUTPUT","OPENROWSET","OPENJSON",
+    "SP_EXECUTESQL","FOREIGN_KEYS","PARENT_OBJECT_ID","DBO","EXECPT",
+    "OBJECT_ID","OBJECT_NAME","OBJECT_SCHEMA_NAME","TABLE_SCHEMA","TABLE_NAME",
+    "TABLE_TYPE"
 }
 }
 
@@ -22,38 +34,20 @@ KEYWORDS = {
 _commentLevel = 0
 }
 
-fragment A : [aA]; 
-fragment B : [bB];
-fragment C : [cC];
-fragment D : [dD];
-fragment E : [eE];
-fragment F : [fF];
-fragment G : [gG];
-fragment H : [hH];
-fragment I : [iI];
-fragment J : [jJ];
-fragment K : [kK];
-fragment L : [lL];
-fragment M : [mM];
-fragment N : [nN];
-fragment O : [oO];
-fragment P : [pP];
-fragment Q : [qQ];
-fragment R : [rR];
-fragment S : [sS];
-fragment T : [tT];
-fragment U : [uU];
-fragment V : [vV];
-fragment W : [wW];
-fragment X : [xX];
-fragment Y : [yY];
-fragment Z : [zZ];
+fragment LETTER : [a-zA-Z];
+fragment DIGIT : [0-9];
+fragment UNDERSCORE : '_';
+fragment HEX_DIGIT : [0-9A-Fa-f];
 
-fragment KEY : [a-zA-Z_][a-zA-Z0-9_]*;
-fragment DIGITS : [0-9]+;
+fragment VALID_ID_START : LETTER | UNDERSCORE ;
+fragment VALID_ID_CONTINUE : LETTER | DIGIT | UNDERSCORE | '\'';
+
+fragment DIGITS : DIGIT+;
 fragment EXP : [eE] [+-]? DIGITS;
 
-LINE_COMMENT : '--' ~[\r\n]* ;
+LINE_COMMENT
+    : '--' ~[\r\n]* -> skip
+    ;
 
 BLOCK_COMMENT_START
     : '/*' { self._commentLevel = 1; } -> pushMode(COMMENT_MODE)
@@ -61,26 +55,46 @@ BLOCK_COMMENT_START
 
 WS : [ \t\r\n]+ -> skip ;
 
-STRING
-    :  '\'' ( '\'\'' | '\\' . | ~['\\\r\n] )* '\''
-    |  '0' X ([0-9a-fA-F] | '\\' [ \t]* [\r\n])+  
-    |  '0' B ([01] | '\\' [ \t]* [\r\n])+
+STRING_SINGLE
+    : [nN]? '\'' ( '\'\'' | '\\' '\r'? '\n' | ~['\\\r\n] | '\r' | '\n' )* '\''
     ;
 
-VARIABLE
-    :  '@@' KEY
-    |  '@' KEY
+STRING_DOUBLE
+    : [nN]? '"' ( '""' | '\\' '\r'? '\n' | ~["\\\r\n] | '\r' | '\n' )* '"'
     ;
 
-IDENTIFIER
-    : KEY
+HEX_STRING
+    : '0' [xX] HEX_DIGIT+ ( '\\' [\r\n] HEX_DIGIT* )*
+    ;
+
+BIT_STRING
+    : '0' [bB] [01]+ ( '\\' [\r\n] [01]* )*
+    ;
+
+BRACKET_IDENTIFIER
+    : '[' (~[\]\r\n])* ']'
       {
-if self.text.upper() in KEYWORDS:
-    self.type = MyLexer.KEYWORD
+        self.type = MyLexer.IDENTIFIER
       }
     ;
 
-KEYWORD : ; 
+VARIABLE
+    :  '@@' VALID_ID_START VALID_ID_CONTINUE*
+    |  '@' VALID_ID_START VALID_ID_CONTINUE*
+    ;
+
+IDENTIFIER
+    : VALID_ID_START VALID_ID_CONTINUE*
+      {
+        if self.text.upper() in KEYWORDS:
+            self.type = MyLexer.KEYWORD
+      }
+    | UNDERSCORE+ DIGIT+
+      {
+        if self.text.upper() in KEYWORDS:
+            self.type = MyLexer.KEYWORD
+      }
+    ;
 
 NUMBER
     : DIGITS ('.' DIGITS)? (EXP)?
@@ -92,17 +106,26 @@ OPERATOR
     | '=' | '<>' | '!=' | '<' | '>' | '<=' | '>='
     | '+=' | '-=' | '*=' | '/='
     | '&' | '|' | '^' | '~' | '<<' | '>>'
-    | '.' | ';' | ',' | '(' | ')'
+    ;
+
+PUNCTUATION
+    : '.' | ';' | ',' | '(' | ')'
     ;
 
 mode COMMENT_MODE;
 
-COMMENT_MODE_RULE
+COMMENT_OPEN
     : '/*' { self._commentLevel += 1; }
-    | '*/' {
+    ;
+
+COMMENT_CLOSE
+    : '*/' {
         self._commentLevel -= 1;
         if self._commentLevel == 0:
             self.popMode()
       }
-    | .
+    ;
+
+COMMENT_TEXT
+    : . -> skip
     ;
