@@ -21,12 +21,11 @@ statement
     | setStatement
     | ifStatement
     | tryCatchStatement
-    | blockStatement
-    | insertStatement
-    | selectStatement
     | deleteStatement
-    | execStatement
     | goStatement
+    | blockStatement
+    | selectStatement
+    | execStatement
     | PUNCTUATION
     ;
 
@@ -116,17 +115,6 @@ tryCatchStatement
       KEYWORD KEYWORD
     ;
 
-insertStatement
-    : KEYWORD KEYWORD? tableName insertColumns? (insertValues|selectStatement|execStatement)
-    ;
-
-insertColumns
-    : PUNCTUATION IDENTIFIER (PUNCTUATION IDENTIFIER)* PUNCTUATION
-    ;
-
-insertValues
-    : KEYWORD PUNCTUATION expression (PUNCTUATION expression)* PUNCTUATION
-    ;
 
 ifStatement
     : KEYWORD KEYWORD KEYWORD? PUNCTUATION //updated here maybe if not exist maby if exist

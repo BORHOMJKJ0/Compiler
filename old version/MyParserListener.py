@@ -197,33 +197,6 @@ class MyParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by MyParser#insertStatement.
-    def enterInsertStatement(self, ctx:MyParser.InsertStatementContext):
-        pass
-
-    # Exit a parse tree produced by MyParser#insertStatement.
-    def exitInsertStatement(self, ctx:MyParser.InsertStatementContext):
-        pass
-
-
-    # Enter a parse tree produced by MyParser#insertColumns.
-    def enterInsertColumns(self, ctx:MyParser.InsertColumnsContext):
-        pass
-
-    # Exit a parse tree produced by MyParser#insertColumns.
-    def exitInsertColumns(self, ctx:MyParser.InsertColumnsContext):
-        pass
-
-
-    # Enter a parse tree produced by MyParser#insertValues.
-    def enterInsertValues(self, ctx:MyParser.InsertValuesContext):
-        pass
-
-    # Exit a parse tree produced by MyParser#insertValues.
-    def exitInsertValues(self, ctx:MyParser.InsertValuesContext):
-        pass
-
-
     # Enter a parse tree produced by MyParser#ifStatement.
     def enterIfStatement(self, ctx:MyParser.IfStatementContext):
         pass
