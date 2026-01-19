@@ -1,116 +1,261 @@
-# Simple SQL Compiler (ANTLR + Python)
+# SQL Compiler - Reorganized Architecture
 
-**Short description**
+A modular SQL compiler frontend implemented with ANTLR and Python, featuring lexical analysis, syntax parsing, AST construction, and semantic analysis.
 
-A small compiler front-end for a SQL-like language implemented with ANTLR and Python. This repository contains the lexer and parser grammars, generated parser/lexer code, a semantic analyzer, and small utilities for testing and token inspection.
+## 📁 Project Structure
+```
+sql_compiler/
+├── grammars/              # ANTLR grammar files
+│   ├── BaseLexer.g4
+│   ├── ExpressionParser.g4
+│   ├── StatementParser.g4
+│   └── SQLParser.g4
+│
+├── lexers/                # Lexical analysis
+│   ├── base_lexer.py
+│   └── token_classifier.py
+│
+│
+├── ast/                   # AST node definitions
+│   ├── base_nodes.py
+│   ├── expression_nodes.py
+│   ├── statement_nodes.py
+│   └── condition_nodes.py
+│
+├── builders/              # AST construction
+│   ├── expression_builder.py
+│   ├── statement_builder.py
+│   ├── condition_builder.py
+│   └── ast_builder.py
+│
+├── semantic/              # Semantic analysis
+│   ├── symbol_table.py
+│   └── semantic_analyzer.py
+│
+├── utils/                 # Utilities
+│   ├── error_handler.py
+│   └── logger.py
+│
+├── main.py               # Main entry point
+├── testLexer.py          # Lexer testing
+├── token_viewer.py       # Token visualization
+├── sqlInput.txt          # Sample SQL input
+├── testing.sql           # Test SQL file
+└── README.md
+```
 
----
+## ✨ Features
 
-## ✅ Features
+- **Modular Architecture**: Clean separation of concerns
+- **Lexical Analysis**: Token generation and classification
+- **Syntax Parsing**: ANTLR-based parser with visitor pattern
+- **AST Construction**: Hierarchical AST representation
+- **Semantic Analysis**: Symbol table, type checking, validation
+- **Error Handling**: Comprehensive error reporting with colors
+- **Visualization**: Browser-based AST and token visualization
 
-- Lexer and parser implemented with ANTLR 4 (Python target)
-- Semantic analysis stage to validate basic SQL semantics
-- Test scripts and sample SQL files for quick iteration
-- Utilities to inspect tokens and debug the lexer
+## 🚀 Installation
 
----
+### Prerequisites
 
-## 📁 Repository structure
-
-- `MyLexer.g4`, `MyParser.g4` — ANTLR grammar files
-- `MyLexer.py`, `MyParser.py`, `MyLexer.tokens`, ... — generated and/or runtime artifacts
-- `gen/` — optional output directory for regenerated ANTLR artifacts
-- `semantic_analyzer.py` — semantic analyzer implementation
-- `testLexer.py` — simple lexer tests
-- `token_viewer.py` — helper to print tokens from an input
-- `testing.sql`, `sqlInput.txt` — example SQL inputs
-
----
-
-## 🔧 Requirements
-
+- Python 3.8+
 - Java 8+ (for ANTLR code generation)
-- Python 3.8+ (works with 3.8–3.11)
-- `antlr4-python3-runtime` (install via pip)
+- ANTLR 4.13.2
 
-Recommended (Windows):
+### Setup
 
-```powershell
-# Install Python deps
+1. Install Python dependencies:
+```bash
 pip install antlr4-python3-runtime
 ```
 
-If you plan to regenerate sources from grammars, download the ANTLR jar from https://www.antlr.org/download.html (e.g. `antlr-4.9.3-complete.jar`).
-
----
-
-## 🏗️ Generate lexer/parser (if grammar changes)
-
-1. Place `antlr-4.*-complete.jar` somewhere accessible.
-2. From project root run (adjust version and path):
-
+2. Generate parser and lexer (if needed):
 ```bash
-# example: regenerate into 'gen' folder
-java -jar path/to/antlr-4.9.3-complete.jar -Dlanguage=Python3 -visitor -o gen MyLexer.g4 MyParser.g4
+# Using existing grammars
+antlr4 -Dlanguage=Python3 -visitor grammars/BaseLexer.g4
+antlr4 -Dlanguage=Python3 -visitor grammars/ExpressionParser.g4
+antlr4 -Dlanguage=Python3 -visitor grammars/StatementParser.g4
+antlr4 -Dlanguage=Python3 -visitor grammars/SQLParser.g4
 ```
 
-3. The `gen/` folder will contain updated `MyLexer.py`, `MyParser.py` and supporting files. If your project imports the generated modules, update Python import paths or copy generated files to the repo root as needed.
+## 📖 Usage
 
-> ⚠️ On Windows, ensure `java` is on your PATH and use the correct path separators.
+### Run Main Compiler
+```bash
+python main.py
+```
 
----
+This will:
+1. Perform lexical analysis
+2. Parse the SQL
+3. Build the AST
+4. Run semantic analysis
+5. Open AST visualization in browser
 
-## ▶️ Usage
-
-- Run lexer tests:
-
+### Run Lexer Tests
 ```bash
 python testLexer.py
 ```
 
-- Inspect tokens produced from `sqlInput.txt`:
+Features:
+- Colored token output
+- Syntax validation
+- Semantic analysis
+- Detailed reports
 
+### Run Token Viewer (GUI)
 ```bash
-python token_viewer.py sqlInput.txt
+python token_viewer.py
 ```
 
-- Run the semantic analyzer (example):
+Opens a Tkinter GUI showing:
+- Token table
+- Error and warning dialogs
+- Token statistics
 
-```bash
-python semantic_analyzer.py sqlInput.txt
+## 🏗️ Architecture
+
+### 1. Lexical Analysis (`lexers/`)
+
+- **BaseLexer**: Wrapper for ANTLR lexer
+- **TokenClassifier**: Token validation and classification
+
+### 2. Parsing (`grammers/`)
+
+Generated ANTLR parsers:
+- Expression parser
+- Statement parser
+- Main SQL parser
+
+### 3. AST Construction (`builders/`)
+
+- **ExpressionBuilder**: Builds expression nodes
+- **ConditionBuilder**: Builds condition nodes
+- **StatementBuilder**: Builds statement nodes
+- **AstBuilder**: Main builder coordinator
+
+### 4. AST Nodes (`ast/`)
+
+- **base_nodes**: Base classes
+- **expression_nodes**: Expression AST nodes
+- **statement_nodes**: Statement AST nodes
+- **condition_nodes**: Condition AST nodes
+
+### 5. Semantic Analysis (`semantic/`)
+
+- **SymbolTable**: Manages tables, columns, variables
+- **SemanticAnalyzer**: Validates semantics
+
+### 6. Utilities (`utils/`)
+
+- **ErrorHandler**: Centralized error management
+- **Logger**: Logging functionality
+
+## 🎨 Features in Detail
+
+### Lexical Analysis
+```python
+from lexers.base_lexer import BaseLexer
+from lexers.token_classifier import TokenClassifier
+
+lexer = BaseLexer(sql_code)
+tokens = lexer.get_token_list()
+
+classifier = TokenClassifier()
+classifier.validate_syntax(tokens, sql_code)
 ```
 
-If scripts expect command-line arguments, pass the input file path explicitly. Check the top of each script for usage examples.
+### AST Construction
+```python
+from builders.ast_builder import AstBuilder
 
----
-
-## 🧪 Tests
-
-This repository contains simple scripts for testing; add `pytest` style tests if you want automated test runs. Example:
-
-```bash
-pip install pytest
-pytest -q
+builder = AstBuilder()
+ast = builder.visit(parse_tree)
 ```
 
----
+### Semantic Analysis
+```python
+from semantic.semantic_analyzer import SemanticAnalyzer
+
+analyzer = SemanticAnalyzer()
+errors, warnings = analyzer.analyze_tokens(tokens)
+report = analyzer.generate_report()
+```
+
+### Error Handling
+```python
+from utils.error_handler import ErrorHandler
+
+handler = ErrorHandler()
+handler.add_error(line, col, message, "SEMANTIC")
+handler.print_all()
+```
+
+## 📊 Supported SQL Features
+
+- ✅ CREATE TABLE
+- ✅ ALTER TABLE (ADD/DROP)
+- ✅ SELECT (with WHERE, ORDER BY, FROM)
+- ✅ INSERT (VALUES, SELECT, EXEC)
+- ✅ UPDATE (with WHERE)
+- ✅ DELETE (with WHERE)
+- ✅ DECLARE variables
+- ✅ SET variables
+- ✅ IF statements
+- ✅ BEGIN...END blocks
+- ✅ TRY...CATCH blocks
+- ✅ EXEC stored procedures
+- ✅ CASE expressions
+- ✅ Complex conditions (AND, OR, IN, IS NULL)
+
+## 🧪 Testing
+
+### Test Files
+
+- `sqlInput.txt`: Main test SQL file
+- `testing.sql`: Alternative test file
+
+### Run Tests
+```bash
+# Test lexer
+python testLexer.py
+
+# Test full compiler
+python main.py
+
+# GUI token viewer
+python token_viewer.py
+```
+
+## 📝 Example
+```sql
+CREATE TABLE [dbo].[Customers](
+    [CustomerID] [int] NOT NULL,
+    [FirstName] [nvarchar](50) NOT NULL,
+    [LastName] [nvarchar](50) NULL
+)
+
+SELECT CustomerID, FirstName, LastName
+FROM Customers
+WHERE CustomerID > 100
+ORDER BY LastName ASC;
+```
 
 ## 🤝 Contributing
 
-- Open an issue for bugs or feature requests
-- Submit pull requests for fixes and improvements
-- When changing grammars, include regenerated `gen/` artifacts or provide clear instructions for regeneration
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
----
+## 📄 License
 
-## 📄 License & Contact
+This project is for educational purposes.
 
-Add a license file (`LICENSE`) if you plan to open-source the project. For questions, open an issue or contact the repository owner.
+## 🔗 Resources
 
----
+- [ANTLR Documentation](https://www.antlr.org/)
+- [Python dataclasses](https://docs.python.org/3/library/dataclasses.html)
 
-If you'd like, I can:
-- add a `requirements.txt` and `Makefile` (or PowerShell script) for convenience
-- regenerate the ANTLR artifacts and commit them
-
-Tell me what you'd like next.
+SQL Server Documentation

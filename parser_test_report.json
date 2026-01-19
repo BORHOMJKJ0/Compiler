@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-01-19T09:44:47.308579",
+  "test_files": [
+    {
+      "filename": "sqlInput.txt",
+      "success": true,
+      "errors": [],
+      "parsing_time": 160.66,
+      "tree_depth": 18,
+      "node_count": 588,
+      "token_count": 326
+    },
+    {
+      "filename": "testing.sql",
+      "success": true,
+      "errors": [],
+      "parsing_time": 74.845,
+      "tree_depth": 18,
+      "node_count": 588,
+      "token_count": 326
+    },
+    {
+      "filename": "train.sql",
+      "success": true,
+      "errors": [],
+      "parsing_time": 78.045,
+      "tree_depth": 18,
+      "node_count": 609,
+      "token_count": 648
+    },
+    {
+      "filename": "train2.sql",
+      "success": true,
+      "errors": [],
+      "parsing_time": 46.327,
+      "tree_depth": 16,
+      "node_count": 284,
+      "token_count": 202
+    }
+  ],
+  "summary": {
+    "total_files": 4,
+    "passed_files": 4,
+    "failed_files": 0,
+    "total_errors": 0
+  }
+}

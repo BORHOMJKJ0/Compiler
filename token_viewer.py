@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from antlr4 import *
-from MyLexer import MyLexer
+from lexers.base_lexer import BaseLexer
 
 TOKEN_COLORS = {
     "KEYWORD": "#f39c12",
@@ -30,8 +30,7 @@ def check_syntax_errors(tokens, lexer, input_text):
     paren_count = 0
 
     for token in tokens:
-        ttype = lexer.symbolicNames[token.type] if token.type < len(lexer.symbolicNames) else "UNKNOWN"
-
+        ttype = lexer.get_token_type_name(token.type)
         if token.text == '(':
             paren_count += 1
         elif token.text == ')':
@@ -100,14 +99,16 @@ def load_tokens(filename="testing.sql"):
     except Exception as e:
         raise Exception(f"Error reading file: {e}")
 
-    lexer = MyLexer(input_stream)
-    tokens = lexer.getAllTokens()
+    with open("sqlInput.txt", "r") as f:
+        input_text = f.read()
+    lexer = BaseLexer(input_text)
+    tokens = lexer.tokenize()
 
     errors, warnings = check_syntax_errors(tokens, lexer, input_text)
 
     out = []
     for t in tokens:
-        ttype = lexer.symbolicNames[t.type] or "UNKNOWN"
+        ttype = lexer.get_token_type_name(t.type) or "UNKNOWN"
         out.append((t.line, t.column, ttype, t.text))
 
     return out, errors, warnings
