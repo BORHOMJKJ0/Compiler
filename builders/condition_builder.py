@@ -52,7 +52,6 @@ class ConditionBuilder:
             operator = "AND" if "AND" in ctx.getText().upper() else "OR"
             return LogicalConditionNode(left=left, operator=operator, right=right)
 
-        # Fallback for EXISTS or other conditions
         from dataclasses import dataclass
 
         @dataclass

@@ -44,7 +44,6 @@ class Variable:
 
 
 class SymbolTable:
-    """Manages symbols (tables, variables) in the SQL script"""
 
     def __init__(self):
         self.tables: Dict[str, Table] = {}
@@ -53,7 +52,6 @@ class SymbolTable:
         self._init_system_tables()
 
     def _init_system_tables(self):
-        """Initialize system tables"""
         sys_columns = Table("columns", "sys")
         sys_columns.add_column(Column("Name", "nvarchar"))
         sys_columns.add_column(Column("Object_ID", "int"))
@@ -71,7 +69,6 @@ class SymbolTable:
         self.tables["INFORMATION_SCHEMA.TABLES"] = info_tables
 
     def add_table(self, table: Table):
-        """Add a table to the symbol table"""
         full_name = f"{table.schema.upper()}.{table.name.upper()}"
         self.tables[full_name] = table
 
@@ -80,18 +77,14 @@ class SymbolTable:
         return self.tables.get(full_name)
 
     def has_table(self, name: str, schema: str = "dbo") -> bool:
-        """Check if a table exists"""
         full_name = f"{schema.upper()}.{name.upper()}"
         return full_name in self.tables
 
     def add_variable(self, variable: Variable):
-        """Add a variable to the symbol table"""
         self.variables[variable.name.upper()] = variable
 
     def get_variable(self, name: str) -> Variable:
-        """Get a variable from the symbol table"""
         return self.variables.get(name.upper())
 
     def has_variable(self, name: str) -> bool:
-        """Check if a variable exists"""
         return name.upper() in self.variables

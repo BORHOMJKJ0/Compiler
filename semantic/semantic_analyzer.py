@@ -15,7 +15,6 @@ class SemanticError:
 
 
 class SemanticAnalyzer:
-    """Performs semantic analysis on SQL tokens"""
 
     def __init__(self):
         self.symbol_table = SymbolTable()
@@ -31,7 +30,6 @@ class SemanticAnalyzer:
         }
 
     def add_error(self, line: int, column: int, message: str, severity: str = "ERROR"):
-        """Add an error or warning"""
         error = SemanticError(line, column, message, severity)
         if severity == "ERROR":
             self.errors.append(error)
@@ -39,12 +37,10 @@ class SemanticAnalyzer:
             self.warnings.append(error)
 
     def analyze_tokens(self, tokens: List[Tuple]):
-        """Analyze a list of tokens"""
         i = 0
         while i < len(tokens):
             line, col, ttype, text = tokens[i]
 
-            # Track literal statistics
             if ttype == "HEX_STRING":
                 self.stats['hex_strings'] += 1
                 self.stats['total_literals'] += 1
@@ -63,7 +59,6 @@ class SemanticAnalyzer:
                 self.stats['numbers'] += 1
                 self.stats['total_literals'] += 1
 
-            # Analyze statements
             if ttype == "KEYWORD" and text.upper() == "CREATE":
                 i = self._analyze_create_table(tokens, i)
 
@@ -87,35 +82,34 @@ class SemanticAnalyzer:
         return self.errors, self.warnings
 
     def _validate_hex_string(self, line: int, col: int, text: str):
-        """Validate hex string format"""
-        hex_part = text[2:].replace('\\', '').replace('\n', '').replace('\r', '')
+        hex_part = text[2:].replace('\\', '').replace(
+            '\n', '').replace('\r', '')
 
         valid_hex = set('0123456789abcdefABCDEF')
         invalid_chars = [c for c in hex_part if c not in valid_hex]
 
         if invalid_chars:
             self.add_error(line, col,
-                f"Invalid characters in hex string: {set(invalid_chars)}",
-                "ERROR")
+                           f"Invalid characters in hex string: {set(invalid_chars)}",
+                           "ERROR")
 
         if len(hex_part) % 2 != 0:
             self.add_error(line, col,
-                f"Hex string length must be even (got {len(hex_part)} digits)",
-                "WARNING")
+                           f"Hex string length must be even (got {len(hex_part)} digits)",
+                           "WARNING")
 
     def _validate_bit_string(self, line: int, col: int, text: str):
-        """Validate bit string format"""
-        bit_part = text[2:].replace('\\', '').replace('\n', '').replace('\r', '')
+        bit_part = text[2:].replace('\\', '').replace(
+            '\n', '').replace('\r', '')
 
         invalid_chars = [c for c in bit_part if c not in '01']
 
         if invalid_chars:
             self.add_error(line, col,
-                f"Invalid characters in bit string: {set(invalid_chars)}",
-                "ERROR")
+                           f"Invalid characters in bit string: {set(invalid_chars)}",
+                           "ERROR")
 
     def _analyze_create_table(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze CREATE TABLE statement"""
         i = start + 1
 
         while i < len(tokens) and tokens[i][2] not in ["IDENTIFIER", "BRACKET_IDENTIFIER"]:
@@ -129,7 +123,6 @@ class SemanticAnalyzer:
         schema = "dbo"
         table_name = first.strip('[]')
 
-        # check for schema.table
         if i + 2 < len(tokens):
             if tokens[i + 1][3] == '.' and tokens[i + 2][2] in ["IDENTIFIER", "BRACKET_IDENTIFIER"]:
                 schema = table_name.upper()
@@ -143,7 +136,7 @@ class SemanticAnalyzer:
 
         if self.symbol_table.has_table(table_name, schema):
             self.add_error(line, col,
-                f"Table '{table_name}' already exists", "WARNING")
+                           f"Table '{table_name}' already exists", "WARNING")
         else:
             table = Table(table_name, schema)
             self.symbol_table.add_table(table)
@@ -153,7 +146,6 @@ class SemanticAnalyzer:
         return i
 
     def _parse_columns(self, tokens: List[Tuple], start: int, table: Table) -> int:
-        """Parse column definitions"""
         i = start
 
         while i < len(tokens):
@@ -167,24 +159,24 @@ class SemanticAnalyzer:
 
                 if "'" in col_name:
                     self.add_error(line, col,
-                        f"Column name '{col_name}' contains apostrophe - consider using bracket notation",
-                        "WARNING")
+                                   f"Column name '{col_name}' contains apostrophe - consider using bracket notation",
+                                   "WARNING")
 
                 i += 1
                 if i < len(tokens):
                     line2, col2, ttype2, dtype = tokens[i]
 
                     valid_types = ["INT", "BIGINT", "NVARCHAR", "VARCHAR", "CHAR",
-                                 "DATETIME", "DATE", "BIT", "FLOAT", "DECIMAL",
-                                 "VARBINARY", "BINARY", "TINYINT", "SMALLINT",
-                                 "MONEY", "SMALLMONEY", "REAL", "NUMERIC"]
+                                   "DATETIME", "DATE", "BIT", "FLOAT", "DECIMAL",
+                                   "VARBINARY", "BINARY", "TINYINT", "SMALLINT",
+                                   "MONEY", "SMALLMONEY", "REAL", "NUMERIC"]
 
                     dtype_clean = dtype.strip('[]').upper()
 
                     if ttype2 in ["KEYWORD", "IDENTIFIER", "BRACKET_IDENTIFIER"]:
                         if dtype_clean not in valid_types and dtype.upper() not in valid_types:
                             self.add_error(line2, col2,
-                                f"Unknown data type '{dtype}'", "WARNING")
+                                           f"Unknown data type '{dtype}'", "WARNING")
 
                     nullable = True
                     i += 1
@@ -201,7 +193,6 @@ class SemanticAnalyzer:
         return i
 
     def _analyze_alter_table(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze ALTER TABLE statement"""
         i = start + 1
 
         while i < len(tokens) and tokens[i][2] not in ["IDENTIFIER", "BRACKET_IDENTIFIER"]:
@@ -213,7 +204,6 @@ class SemanticAnalyzer:
         line, col, ttype, table_name = tokens[i]
         raw_name = table_name.strip('[]')
 
-        # Parse schema if exists
         schema = "dbo"
         if '.' in raw_name:
             parts = raw_name.split('.')
@@ -240,11 +230,12 @@ class SemanticAnalyzer:
                     col_line, col_col, col_type, col_name = tokens[i]
                     col_name_clean = col_name.strip('[]').upper()
 
-                    table = self.symbol_table.get_table(table_name_clean) or self.symbol_table.get_table(table_name_clean, "DBO")
+                    table = self.symbol_table.get_table(
+                        table_name_clean) or self.symbol_table.get_table(table_name_clean, "DBO")
                     if table and table.has_column(col_name_clean):
                         self.add_error(col_line, col_col,
-                            f"Column '{col_name}' already exists in table '{table_name}'",
-                            "WARNING")
+                                       f"Column '{col_name}' already exists in table '{table_name}'",
+                                       "WARNING")
                     elif table:
                         i += 1
                         if i < len(tokens):
@@ -260,14 +251,12 @@ class SemanticAnalyzer:
         return i
 
     def _analyze_update(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze UPDATE statement"""
         i = start + 1
 
         if i < len(tokens):
             line, col, ttype, table_name = tokens[i]
             raw_name = table_name.strip('[]')
 
-            # Parse schema if exists
             schema = "dbo"
             if '.' in raw_name:
                 parts = raw_name.split('.')
@@ -288,7 +277,6 @@ class SemanticAnalyzer:
         while i < len(tokens):
             if tokens[i][2] == "KEYWORD" and tokens[i][3].upper() == "SET":
                 i += 1
-                # Check all columns in SET clause
                 while i < len(tokens):
                     if tokens[i][2] in ["IDENTIFIER", "BRACKET_IDENTIFIER"]:
                         col_line, col_col, _, col_name = tokens[i]
@@ -296,7 +284,8 @@ class SemanticAnalyzer:
 
                         table = (
                             self.symbol_table.get_table(table_name_clean) or
-                            self.symbol_table.get_table(table_name_clean, "DBO")
+                            self.symbol_table.get_table(
+                                table_name_clean, "DBO")
                         )
 
                         if table and not table.has_column(col_name_clean):
@@ -306,7 +295,6 @@ class SemanticAnalyzer:
                                 "ERROR"
                             )
 
-                    # Stop at WHERE or ;
                     if i < len(tokens):
                         token_text = tokens[i][3] if len(tokens[i]) > 3 else ''
                         if token_text in [';'] or token_text.upper() in ['WHERE', 'GO']:
@@ -322,7 +310,6 @@ class SemanticAnalyzer:
         return i
 
     def _analyze_select(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze SELECT statement"""
         i = start + 1
 
         while i < len(tokens):
@@ -334,7 +321,6 @@ class SemanticAnalyzer:
                     schema = "DBO"
                     table_name_clean = ""
 
-                    # schema.table (sys.columns, dbo.users, ...)
                     if i + 2 < len(tokens) and tokens[i + 1][3] == '.':
                         schema = tokens[i][3].strip('[]').upper()
                         table_name_clean = tokens[i + 2][3].strip('[]').upper()
@@ -351,9 +337,9 @@ class SemanticAnalyzer:
                         continue
 
                     if (not self.symbol_table.has_table(table_name_clean, schema) and
-                        not self.symbol_table.has_table(table_name_clean, "DBO")):
+                            not self.symbol_table.has_table(table_name_clean, "DBO")):
                         self.add_error(line, col,
-                            f"Table '{schema}.{table_name_clean}' does not exist", "WARNING")
+                                       f"Table '{schema}.{table_name_clean}' does not exist", "WARNING")
 
             i += 1
             if i > 0 and tokens[i - 1][3] in [';', ')']:
@@ -362,7 +348,6 @@ class SemanticAnalyzer:
         return i
 
     def _analyze_declare(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze DECLARE statement"""
         i = start + 1
 
         if i < len(tokens) and tokens[i][2] == "VARIABLE":
@@ -370,7 +355,7 @@ class SemanticAnalyzer:
 
             if self.symbol_table.has_variable(var_name):
                 self.add_error(line, col,
-                    f"Variable '{var_name}' already declared", "WARNING")
+                               f"Variable '{var_name}' already declared", "WARNING")
             else:
                 i += 1
                 if i < len(tokens):
@@ -380,7 +365,6 @@ class SemanticAnalyzer:
         return i + 1
 
     def _analyze_set(self, tokens: List[Tuple], start: int) -> int:
-        """Analyze SET statement"""
         i = start + 1
 
         if i < len(tokens) and tokens[i][2] == "VARIABLE":
@@ -388,7 +372,7 @@ class SemanticAnalyzer:
 
             if not self.symbol_table.has_variable(var_name):
                 self.add_error(line, col,
-                    f"Variable '{var_name}' not declared", "ERROR")
+                               f"Variable '{var_name}' not declared", "ERROR")
             else:
                 variable = self.symbol_table.get_variable(var_name)
                 variable.initialized = True
@@ -396,7 +380,6 @@ class SemanticAnalyzer:
         return i + 1
 
     def generate_report(self) -> str:
-        """Generate analysis report"""
         report = []
         report.append("=" * 80)
         report.append("SEMANTIC ANALYSIS REPORT".center(80))
@@ -405,8 +388,10 @@ class SemanticAnalyzer:
 
         if self.stats['total_literals'] > 0:
             report.append("Literal Statistics:")
-            report.append(f"  • Total Literals: {self.stats['total_literals']}")
-            report.append(f"  • Regular Strings: {self.stats['regular_strings']}")
+            report.append(
+                f"  • Total Literals: {self.stats['total_literals']}")
+            report.append(
+                f"  • Regular Strings: {self.stats['regular_strings']}")
             report.append(f"  • Hex Strings: {self.stats['hex_strings']}")
             report.append(f"  • Bit Strings: {self.stats['bit_strings']}")
             report.append(f"  • Numbers: {self.stats['numbers']}")
@@ -415,13 +400,16 @@ class SemanticAnalyzer:
         report.append(f"Tables Defined: {len(self.symbol_table.tables)}")
         for table_name, table in self.symbol_table.tables.items():
             if not table_name.startswith("SYS.") and not table_name.startswith("INFORMATION_SCHEMA."):
-                report.append(f"  • {table.schema}.{table.name} ({len(table.columns)} columns)")
+                report.append(
+                    f"  • {table.schema}.{table.name} ({len(table.columns)} columns)")
                 for col_name, col in table.columns.items():
                     null_str = "NULL" if col.nullable else "NOT NULL"
-                    report.append(f"      - {col.name}: {col.data_type} {null_str}")
+                    report.append(
+                        f"      - {col.name}: {col.data_type} {null_str}")
         report.append("")
 
-        report.append(f"Variables Declared: {len(self.symbol_table.variables)}")
+        report.append(
+            f"Variables Declared: {len(self.symbol_table.variables)}")
         for var in self.symbol_table.variables.values():
             init_str = "initialized" if var.initialized else "not initialized"
             report.append(f"  • {var.name}: {var.data_type} ({init_str})")
@@ -430,13 +418,13 @@ class SemanticAnalyzer:
         if self.errors:
             report.append(f"ERRORS: {len(self.errors)}")
             for error in self.errors:
-                report.append(f"  ✗ {error}")
+                report.append(f"   {error}")
             report.append("")
 
         if self.warnings:
             report.append(f"WARNINGS: {len(self.warnings)}")
             for warning in self.warnings:
-                report.append(f"  ⚠ {warning}")
+                report.append(f"   {warning}")
             report.append("")
 
         if not self.errors:

@@ -1,0 +1,22 @@
+{
+    "sourceFile": "visualize_tree.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1768914480759,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768914507416,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -23,9 +23,8 @@\n         lexer = BaseLexer(input_stream)\n         token_stream = CommonTokenStream(lexer)\n         parser = SQLParser(token_stream)\n \n-        # استخدام قاعدة parse كبداية للتحليل\n         tree = parser.parse()\n \n         print(f\"=== HIERARCHICAL PARSE TREE FOR: {sql_file} ===\")\n         print(get_tree_text(tree, parser))\n"
+                }
+            ],
+            "date": 1768914480759,
+            "name": "Commit-0",
+            "content": "import sys\nfrom antlr4 import *\nfrom BaseLexer import BaseLexer\nfrom SQLParser import SQLParser\nfrom antlr4.tree.Trees import Trees\n\n\ndef get_tree_text(tree, parser, indent=0):\n    name = Trees.getNodeText(tree, parser.ruleNames)\n    result = \"  \" * indent + name + \"\\n\"\n    if tree.getChildCount() > 0:\n        for i in range(tree.getChildCount()):\n            result += get_tree_text(tree.getChild(i), parser, indent + 1)\n    return result\n\n\ndef visualize(sql_file):\n    try:\n        with open(sql_file, 'r', encoding='utf-8') as f:\n            input_text = f.read()\n\n        input_stream = InputStream(input_text)\n        lexer = BaseLexer(input_stream)\n        token_stream = CommonTokenStream(lexer)\n        parser = SQLParser(token_stream)\n\n        # استخدام قاعدة parse كبداية للتحليل\n        tree = parser.parse()\n\n        print(f\"=== HIERARCHICAL PARSE TREE FOR: {sql_file} ===\")\n        print(get_tree_text(tree, parser))\n    except Exception as e:\n        print(f\"Error: {e}\")\n\n\nif __name__ == \"__main__\":\n    file_to_parse = \"sqlInput.txt\"\n    if len(sys.argv) > 1:\n        file_to_parse = sys.argv[1]\n    visualize(file_to_parse)\n"
+        }
+    ]
+}

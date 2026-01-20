@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 8,
+            "activePatchIndex": 10,
             "patches": [
                 {
                     "date": 1768866063855,
@@ -40,6 +40,14 @@
                 {
                     "date": 1768866123011,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,8 @@\n         self.expr_builder = ExpressionBuilder()\n         self.cond_builder = ConditionBuilder()\n \n     def build_statement(self, ctx):\n-        \"\"\"Build a statement node from context\"\"\"\n         # Handle semicolon as a valid but empty statement\n         if ctx.getText() == ';':\n             from dataclasses import dataclass\n             @dataclass\n@@ -65,14 +64,12 @@\n             \n         return None\n \n     def build_go(self, ctx):\n-        \"\"\"Build GO statement\"\"\"\n         from Ast.statement_nodes import GoStatementNode\n         return GoStatementNode(keywordGo=\"GO\")\n \n     def build_create_table(self, ctx):\n-        \"\"\"Build CREATE TABLE statement\"\"\"\n         from Ast.statement_nodes import CreateTableStatementNode\n         tableName = self.expr_builder.build_table_name(ctx.tableName())\n         columns = self.build_column_definition_list(ctx.columnDefinitionList())\n \n"
+                },
+                {
+                    "date": 1768913194223,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,8 @@\n         self.expr_builder = ExpressionBuilder()\r\n         self.cond_builder = ConditionBuilder()\r\n \r\n     def build_statement(self, ctx):\r\n-        # Handle semicolon as a valid but empty statement\r\n         if ctx.getText() == ';':\r\n             from dataclasses import dataclass\r\n \r\n             @dataclass\r\n"
+                },
+                {
+                    "date": 1768913209700,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -241,9 +241,8 @@\n         blockStatement = None\r\n         if hasattr(ctx, 'blockStatement') and ctx.blockStatement():\r\n             blockStatement = self.build_block(ctx.blockStatement())\r\n         elif hasattr(ctx, 'statement') and ctx.statement():\r\n-            # If it's a single statement instead of a block\r\n             blockStatement = self.build_statement(ctx.statement())\r\n \r\n         return IfStatementNode(\r\n             keywordIf=\"IF\",\r\n"
                 }
             ],
             "date": 1768866063855,

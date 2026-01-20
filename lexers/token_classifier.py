@@ -2,10 +2,9 @@ from typing import List, Tuple, Dict
 
 
 class TokenClassifier:
-    """Classifies and validates tokens"""
 
     KEYWORDS = {
-        "CAST","FALSE", "FETCH", "ILIKE", "LIMIT", "NATURAL", "PARTITION", "OFFSET", "RETURNING", "SELECT", "UNNEST", "WINDOW", "TEMP", "TEMPORARY", "LOOP", "REPLACE", "MATERIALIZED", "FIRST", "TRY", "CATCH", "GO", "QUOTENAME", "NVARCHAR", "ERROR_MESSAGE", "ERROR_SEVERITY", "ERROR_STATE", "SCHEMA_NAME", "SCHEMA", "OBJECT", "TYPE", "INFORMATION_SCHEMA", "TABLES", "BASE", "COLUMNS", "KEYS", "PARENT", "TINYINT", "SEQUENCES", "OUTPUT", "OPENJSON", "SP_EXECUTESQL", "FOREIGN_KEYS", "PARENT_OBJECT_ID", "EXECPT", "OBJECT_ID", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"
+        "CAST", "FALSE", "FETCH", "ILIKE", "LIMIT", "NATURAL", "PARTITION", "OFFSET", "RETURNING", "SELECT", "UNNEST", "WINDOW", "TEMP", "TEMPORARY", "LOOP", "REPLACE", "MATERIALIZED", "FIRST", "TRY", "CATCH", "GO", "QUOTENAME", "NVARCHAR", "ERROR_MESSAGE", "ERROR_SEVERITY", "ERROR_STATE", "SCHEMA_NAME", "SCHEMA", "OBJECT", "TYPE", "INFORMATION_SCHEMA", "TABLES", "BASE", "COLUMNS", "KEYS", "PARENT", "TINYINT", "SEQUENCES", "OUTPUT", "OPENJSON", "SP_EXECUTESQL", "FOREIGN_KEYS", "PARENT_OBJECT_ID", "EXECPT", "OBJECT_ID", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"
         "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN",
         "BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED",
         "COALESCE", "COLLATE", "COLUMN", "COMMIT", "COMPUTE", "CONSTRAINT", "CONTAINS", "CONTAINSTABLE",
@@ -40,7 +39,7 @@ class TokenClassifier:
         "MAX", "MIN", "POWER", "RANK", "ROW_NUMBER", "RTRIM", "SUBSTRING", "SUM", "UPPER",
         "BIGINT", "BINARY", "BIT", "CHAR", "DATE", "DATETIME", "DECIMAL", "FLOAT", "IMAGE", "INT",
         "MONEY", "NCHAR", "NTEXT", "NUMERIC", "REAL", "SMALLINT", "SMALLMONEY", "SQL_VARIANT",
-        "TEXT", "TIME", "TIMESTAMP", "UNIQUEIDENTIFIER", "VARBINARY", "VARCHAR", "XML","VERSION"
+        "TEXT", "TIME", "TIMESTAMP", "UNIQUEIDENTIFIER", "VARBINARY", "VARCHAR", "XML", "VERSION"
     }
 
     def __init__(self):
@@ -48,14 +47,12 @@ class TokenClassifier:
         self.warnings: List[str] = []
 
     def classify_tokens(self, tokens: List[Tuple]) -> Dict[str, int]:
-        """Classify tokens and return statistics"""
         stats = {}
         for line, col, ttype, text in tokens:
             stats[ttype] = stats.get(ttype, 0) + 1
         return stats
 
     def validate_syntax(self, tokens: List[Tuple], input_text: str):
-        """Validate basic syntax rules"""
         self.errors.clear()
         self.warnings.clear()
 
@@ -66,7 +63,6 @@ class TokenClassifier:
         self._check_comments(input_text)
 
     def _check_parentheses(self, tokens: List[Tuple]):
-        """Check for balanced parentheses"""
         paren_count = 0
         for line, col, ttype, text in tokens:
             if text == '(':
@@ -84,7 +80,6 @@ class TokenClassifier:
                 f"Error: {paren_count} unclosed opening parenthesis")
 
     def _check_brackets(self, tokens: List[Tuple]):
-        """Check for balanced brackets"""
         bracket_count = 0
         for line, col, ttype, text in tokens:
             if text == '[':
@@ -102,7 +97,6 @@ class TokenClassifier:
                 f"Error: {bracket_count} unclosed opening bracket")
 
     def _check_identifiers(self, tokens: List[Tuple]):
-        """Validate identifiers"""
         for line, col, ttype, text in tokens:
             if ttype in ["IDENTIFIER", "BRACKET_IDENTIFIER"]:
                 if "'" in text and not text.startswith('['):
@@ -118,7 +112,6 @@ class TokenClassifier:
                     )
 
     def _check_strings(self, tokens: List[Tuple]):
-        """Validate string literals"""
         for line, col, ttype, text in tokens:
             if ttype in ["STRING_SINGLE", "STRING_DOUBLE"]:
                 if "''" in text[1:-1]:
@@ -136,25 +129,24 @@ class TokenClassifier:
                     )
 
     def _check_comments(self, input_text: str):
-        """Check for balanced block comments"""
         comment_depth = 0
-        lines = input_text.split('\n')
-        for line_num, line in enumerate(lines, 1):
-            i = 0
-            while i < len(line) - 1:
-                if line[i:i + 2] == '/*':
-                    comment_depth += 1
-                    i += 2
-                elif line[i:i + 2] == '*/':
-                    comment_depth -= 1
-                    if comment_depth < 0:
-                        self.errors.append(
-                            f"Line {line_num}: Closing comment */ without opening /*"
-                        )
-                        comment_depth = 0
-                    i += 2
-                else:
-                    i += 1
+        i = 0
+        n = len(input_text)
+        while i < n - 1:
+            if input_text[i:i + 2] == '/*':
+                comment_depth += 1
+                i += 2
+            elif input_text[i:i + 2] == '*/':
+                comment_depth -= 1
+                if comment_depth < 0:
+                    line_num = input_text[:i].count('\n') + 1
+                    self.errors.append(
+                        f"Line {line_num}: Closing comment */ without opening /*"
+                    )
+                    comment_depth = 0
+                i += 2
+            else:
+                i += 1
 
         if comment_depth > 0:
             self.errors.append(

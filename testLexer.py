@@ -4,7 +4,6 @@ from lexers.token_classifier import TokenClassifier
 from semantic.semantic_analyzer import SemanticAnalyzer
 from utils.logger import Logger
 
-# ANSI Colors
 RESET = "\033[0m"
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -20,7 +19,6 @@ LIME = "\033[38;5;118m"
 
 
 def colorize(ttype, text):
-    """Colorize token based on type"""
     if ttype == "NUMBER":
         return GREEN + text + RESET
     if ttype == "HEX_STRING":
@@ -62,7 +60,6 @@ def main():
 
     logger.info(f"Reading file: {filename}")
 
-    # Lexical Analysis
     base_lexer = BaseLexer(input_text)
     tokens = base_lexer.get_token_list()
 
@@ -72,11 +69,9 @@ def main():
 
     logger.info(f"Tokens generated: {len(tokens)}")
 
-    # Token Classification and Validation
     classifier = TokenClassifier()
     classifier.validate_syntax(tokens, input_text)
 
-    # Semantic Analysis
     print(f"\n{CYAN}{'=' * 80}")
     print(f"{'PERFORMING SEMANTIC ANALYSIS':^80}")
     print(f"{'=' * 80}{RESET}\n")
@@ -87,25 +82,22 @@ def main():
     all_errors = classifier.errors + [str(e) for e in sem_errors]
     all_warnings = classifier.warnings + [str(w) for w in sem_warnings]
 
-    # Print Errors
     if all_errors:
         print(f"\n{RED}{'=' * 80}")
         print(f"{'ERRORS':^80}")
         print(f"{'=' * 80}{RESET}\n")
         for error in all_errors:
-            print(f"{RED}✗ {error}{RESET}")
+            print(f"{RED} {error}{RESET}")
         print()
 
-    # Print Warnings
     if all_warnings:
         print(f"\n{YELLOW}{'=' * 80}")
         print(f"{'WARNINGS':^80}")
         print(f"{'=' * 80}{RESET}\n")
         for warning in all_warnings:
-            print(f"{YELLOW}⚠ {warning}{RESET}")
+            print(f"{YELLOW} {warning}{RESET}")
         print()
 
-    # Calculate column widths
     with open("sqlInput.txt", "r") as f:
         input_text = f.read()
     lexer = BaseLexer(input_text)
@@ -113,10 +105,10 @@ def main():
 
     line_width = max(len(str(t.line)) for t in raw_tokens) + 2
     col_width = max(len(str(t.column)) for t in raw_tokens) + 2
-    type_width = max(len(str(lexer.get_token_type_name(t.type) or "UNKNOWN")) for t in raw_tokens) + 2
+    type_width = max(len(str(lexer.get_token_type_name(
+        t.type) or "UNKNOWN")) for t in raw_tokens) + 2
     val_width = min(max(len(str(t.text)) for t in raw_tokens) + 2, 60)
 
-    # Print Token Table
     print(f"\n{CYAN}{'=' * 80}")
     print(f"{'TOKEN TABLE':^80}")
     print(f"{'=' * 80}{RESET}\n")
@@ -130,7 +122,8 @@ def main():
 
     for token in raw_tokens:
         ttype = lexer.get_token_type_name(token.type) or "UNKNOWN"
-        display_value = token.text if len(token.text) <= 50 else token.text[:47] + "..."
+        display_value = token.text if len(
+            token.text) <= 50 else token.text[:47] + "..."
         colored_value = colorize(ttype, display_value)
 
         ansi_length = len(colored_value) - len(display_value)
@@ -144,7 +137,6 @@ def main():
     print(CYAN + "└" + "─" * line_width + "┴" + "─" * col_width +
           "┴" + "─" * type_width + "┴" + "─" * val_width + "┘" + RESET)
 
-    # Token Statistics
     print(f"\n{CYAN}{'=' * 80}{RESET}")
     token_types = {}
     for token in raw_tokens:
@@ -159,15 +151,13 @@ def main():
     for ttype, count in sorted(token_types.items(), key=lambda x: -x[1]):
         print(f"  {colorize(ttype, ttype)}: {count}")
 
-    # Semantic Report
     print(f"\n{CYAN}{'=' * 80}")
     print(semantic.generate_report())
 
-    # Final Status
     if not all_errors:
-        print(f"\n{GREEN}✓ Analysis completed successfully without errors!{RESET}\n")
+        print(f"\n{GREEN}Analysis completed successfully without errors!{RESET}\n")
     else:
-        print(f"\n{RED}✗ Analysis failed! Please fix the errors above.{RESET}\n")
+        print(f"\n{RED}Analysis failed! Please fix the errors above.{RESET}\n")
 
 
 if __name__ == "__main__":

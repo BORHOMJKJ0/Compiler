@@ -40,7 +40,6 @@ class ExpressionBuilder:
             value = ctx.STRING_DOUBLE().getText()
             return LiteralExpressionNode(value=value, literal_type="STRING_DOUBLE")
 
-        # Fallback for unknown expression types
         from dataclasses import dataclass
 
         @dataclass
@@ -63,7 +62,6 @@ class ExpressionBuilder:
         elif hasattr(ctx, 'expression') and ctx.expression():
             return self.build_expression(ctx.expression())
         elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR() and ctx.primary():
-            # Unary operator like -1
             op = ctx.OPERATOR().getText()
             inner = self.build_primary(ctx.primary())
             if isinstance(inner, LiteralExpressionNode):
@@ -85,7 +83,6 @@ class ExpressionBuilder:
             value = ctx.STRING_DOUBLE().getText()
             return LiteralExpressionNode(value=value, literal_type="STRING_DOUBLE")
         else:
-            # Fallback to text (NULL, etc)
             return LiteralExpressionNode(value=ctx.getText(), literal_type="KEYWORD")
 
     def build_column_reference(self, ctx):

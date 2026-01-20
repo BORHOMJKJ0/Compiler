@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1768865211626,
@@ -16,6 +16,10 @@
                 {
                     "date": 1768866013688,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,8 @@\n class ConditionBuilder:\n     \"\"\"Builder for condition AST nodes\"\"\"\n \n     def build_condition(self, ctx):\n-        \"\"\"Build a condition node from context\"\"\"\n         from builders.expression_builder import ExpressionBuilder\n         from Ast.condition_nodes import BinaryConditionNode, InConditionNode, IsNotConditionNode, ParenthesizedConditionNode, LogicalConditionNode\n         expr_builder = ExpressionBuilder()\n \n"
+                },
+                {
+                    "date": 1768913160460,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -51,9 +51,8 @@\n             right = self.build_condition(ctx.condition(1))\r\n             operator = \"AND\" if \"AND\" in ctx.getText().upper() else \"OR\"\r\n             return LogicalConditionNode(left=left, operator=operator, right=right)\r\n \r\n-        # Fallback for EXISTS or other conditions\r\n         from dataclasses import dataclass\r\n \r\n         @dataclass\r\n         class GenericConditionNode:\r\n"
                 }
             ],
             "date": 1768865211626,

@@ -1,8 +1,3 @@
-"""
-Statement-Based SQL Parser Test
-اختبار Parser بناءً على SQL Statements الكاملة
-"""
-
 import sys
 from pathlib import Path
 from antlr4 import *
@@ -12,7 +7,6 @@ import re
 
 
 class SQLErrorListener(ErrorListener):
-    """مستمع الأخطاء"""
 
     def __init__(self):
         super().__init__()
@@ -28,7 +22,6 @@ class SQLErrorListener(ErrorListener):
 
 
 class StatementBasedTester:
-    """اختبار بناءً على Statements"""
 
     def __init__(self):
         try:
@@ -36,17 +29,15 @@ class StatementBasedTester:
             from SQLParser import SQLParser
             self.BaseLexer = BaseLexer
             self.SQLParser = SQLParser
-            print("✅ Successfully loaded BaseLexer and SQLParser\n")
+            print("Successfully loaded BaseLexer and SQLParser\n")
         except ImportError as e:
-            print(f"❌ Error importing: {e}")
+            print(f"Error importing: {e}")
             sys.exit(1)
 
     def split_into_statements(self, sql_code):
-        """تقسيم SQL إلى statements بناءً على GO و semicolon"""
-        # استبدل GO بـ separator
-        sql_code = re.sub(r'\bGO\b', '\n---STATEMENT_SEPARATOR---\n', sql_code, flags=re.IGNORECASE)
+        sql_code = re.sub(
+            r'\bGO\b', '\n---STATEMENT_SEPARATOR---\n', sql_code, flags=re.IGNORECASE)
 
-        # قسّم على separator
         statements = []
         current = []
 
@@ -60,7 +51,6 @@ class StatementBasedTester:
             else:
                 current.append(line)
 
-        # آخر statement
         if current:
             stmt = '\n'.join(current).strip()
             if stmt:
@@ -69,11 +59,9 @@ class StatementBasedTester:
         return statements
 
     def test_statement(self, stmt_num, statement):
-        """اختبار statement واحد"""
         try:
             start_time = datetime.now()
 
-            # Lexing
             input_stream = InputStream(statement)
             lexer = self.BaseLexer(input_stream)
             token_stream = CommonTokenStream(lexer)
@@ -81,7 +69,6 @@ class StatementBasedTester:
 
             token_count = len(token_stream.tokens)
 
-            # Parsing
             parser = self.SQLParser(token_stream)
             error_listener = SQLErrorListener()
             parser.removeErrorListeners()
@@ -92,7 +79,6 @@ class StatementBasedTester:
             end_time = datetime.now()
             parsing_time = (end_time - start_time).total_seconds() * 1000
 
-            # النتائج
             if len(error_listener.errors) == 0:
                 return {
                     'status': 'SUCCESS',
@@ -117,15 +103,14 @@ class StatementBasedTester:
             }
 
     def test_file(self, filepath):
-        """اختبار ملف كامل"""
         filepath = Path(filepath)
 
         print("=" * 100)
-        print(f"📁 TESTING FILE: {filepath.name}")
+        print(f" TESTING FILE: {filepath.name}")
         print("=" * 100)
 
         if not filepath.exists():
-            print(f"❌ File not found")
+            print("File not found")
             return
 
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -134,57 +119,53 @@ class StatementBasedTester:
         # تقسيم إلى statements
         statements = self.split_into_statements(sql_code)
 
-        print(f"\n📊 File Statistics:")
+        print(" File Statistics:")
         print(f"   Total Characters: {len(sql_code)}")
         print(f"   Total Lines: {len(sql_code.split(chr(10)))}")
         print(f"   Total Statements: {len(statements)}")
         print()
 
-        # اختبار كل statement
-        print("🔍 Testing each statement:")
+        print(" Testing each statement:")
         print("─" * 100)
-        print(f"{'#':>3} | {'Status':^10} | {'Time':>8} | {'Tokens':>6} | {'Preview':<60}")
+        print(
+            f"{'#':>3} | {'Status':^10} | {'Time':>8} | {'Tokens':>6} | {'Preview':<60}")
         print("─" * 100)
 
         results = []
 
         for i, stmt in enumerate(statements, 1):
-            # Preview من أول سطر
             preview = stmt.split('\n')[0].strip()[:60]
             if len(stmt.split('\n')[0]) > 60:
                 preview += "..."
 
-            # اختبار
             result = self.test_statement(i, stmt)
             results.append(result)
 
-            # عرض النتيجة
             if result['status'] == 'SUCCESS':
-                icon = '✅'
+                icon = ''
                 status = 'SUCCESS'
             elif result['status'] == 'FAILED':
-                icon = '❌'
+                icon = ''
                 status = 'FAILED'
             else:
-                icon = '💥'
+                icon = ''
                 status = 'EXCEPT'
 
-            print(f"{i:3d} | {icon} {status:^8} | {result['time']:>7.1f}ms | {result['tokens']:>6d} | {preview}")
+            print(
+                f"{i:3d} | {icon} {status:^8} | {result['time']:>7.1f}ms | {result['tokens']:>6d} | {preview}")
 
         print("─" * 100)
 
-        # عرض تفاصيل الأخطاء
         failed = [r for r in results if r['status'] != 'SUCCESS']
 
         if failed:
-            print(f"\n❌ FAILED STATEMENTS DETAILS:")
+            print(f" FAILED STATEMENTS DETAILS:")
             print("=" * 100)
 
             for i, stmt in enumerate(statements, 1):
                 result = results[i-1]
                 if result['status'] != 'SUCCESS':
                     print(f"\n📋 Statement {i}:")
-                    # عرض أول 5 أسطر من statement
                     lines = stmt.split('\n')[:5]
                     for line in lines:
                         print(f"   {line}")
@@ -194,23 +175,25 @@ class StatementBasedTester:
 
                     print(f"\n   Errors:")
                     for err in result['errors'][:3]:
-                        print(f"      └─ Line {err.get('line', '?')}: {err['message'][:80]}")
+                        print(
+                            f"      └─ Line {err.get('line', '?')}: {err['message'][:80]}")
 
-        # الملخص
         success_count = sum(1 for r in results if r['status'] == 'SUCCESS')
         failed_count = len(results) - success_count
 
         print(f"\n{'=' * 100}")
-        print("📊 SUMMARY")
+        print("SUMMARY")
         print("=" * 100)
-        print(f"\n   Total Statements:  {len(results):3d}")
-        print(f"   ✅ Success:        {success_count:3d} ({success_count/len(results)*100:.1f}%)")
-        print(f"   ❌ Failed:         {failed_count:3d} ({failed_count/len(results)*100:.1f}%)")
+        print(f"   Total Statements:  {len(results):3d}")
+        print(
+            f"   Success:        {success_count:3d} ({success_count/len(results)*100:.1f}%)")
+        print(
+            f"   Failed:         {failed_count:3d} ({failed_count/len(results)*100:.1f}%)")
 
         if results:
             times = [r['time'] for r in results if r['time'] > 0]
             if times:
-                print(f"\n   Performance:")
+                print("   Performance:")
                 print(f"      Average: {sum(times)/len(times):.1f}ms")
                 print(f"      Max:     {max(times):.1f}ms")
                 print(f"      Min:     {min(times):.1f}ms")
@@ -221,7 +204,6 @@ class StatementBasedTester:
 
 
 def main():
-    """الدالة الرئيسية"""
     print("=" * 100)
     print("         STATEMENT-BASED SQL PARSER TEST")
     print("=" * 100)
@@ -229,7 +211,6 @@ def main():
 
     tester = StatementBasedTester()
 
-    # اختبار الملفات
     files = [
         ('sqlInput.txt', 'Main test file'),
         ('testing.sql', 'Testing file'),
@@ -242,23 +223,22 @@ def main():
 
     for filename, description in files:
         if Path(filename).exists():
-            print(f"\n📝 {description}")
+            print(f" {description}")
             success = tester.test_file(filename)
             results[filename] = success
         else:
-            print(f"\n⚠️  Skipping {filename} - not found")
+            print(f"  Skipping {filename} - not found")
 
-    # ملخص نهائي
     print("\n" + "=" * 100)
     print("🏁 FINAL RESULTS")
     print("=" * 100)
 
     for filename, success in results.items():
-        status = "✅ PASS" if success else "❌ FAIL"
+        status = " PASS" if success else " FAIL"
         print(f"   {status} - {filename}")
 
     total_pass = sum(1 for s in results.values() if s)
-    print(f"\n   Overall: {total_pass}/{len(results)} files passed")
+    print(f"  Overall: {total_pass}/{len(results)} files passed")
     print("=" * 100)
 
 

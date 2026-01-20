@@ -36,7 +36,8 @@ def check_syntax_errors(tokens, lexer, input_text):
         elif token.text == ')':
             paren_count -= 1
             if paren_count < 0:
-                errors.append(f"Line {token.line}, Column {token.column}: Closing parenthesis ) without opening")
+                errors.append(
+                    f"Line {token.line}, Column {token.column}: Closing parenthesis ) without opening")
                 paren_count = 0
 
         if ttype == "INVALID_IDENTIFIER":
@@ -47,7 +48,8 @@ def check_syntax_errors(tokens, lexer, input_text):
                 errors.append(
                     f"Line {token.line}, Column {token.column}: Invalid identifier '{token.text}' - Cannot start with digit")
             else:
-                errors.append(f"Line {token.line}, Column {token.column}: Invalid identifier '{token.text}'")
+                errors.append(
+                    f"Line {token.line}, Column {token.column}: Invalid identifier '{token.text}'")
 
         if token.text.startswith('[') and token.text.endswith(']'):
             if "'" in token.text:
@@ -57,12 +59,14 @@ def check_syntax_errors(tokens, lexer, input_text):
         if (token.text.startswith("'") and token.text.endswith("'")) or \
                 (token.text.startswith('"') and token.text.endswith('"')):
             if "''" in token.text[1:-1] or '""' in token.text[1:-1]:
-                warnings.append(f"Line {token.line}, Column {token.column}: String contains escaped quotes")
+                warnings.append(
+                    f"Line {token.line}, Column {token.column}: String contains escaped quotes")
 
         # Check for line continuation
         if ttype in ["STRING_SINGLE", "STRING_DOUBLE", "HEX_STRING", "BIT_STRING"]:
             if '\\' in token.text:
-                warnings.append(f"Line {token.line}, Column {token.column}: Contains line continuation character")
+                warnings.append(
+                    f"Line {token.line}, Column {token.column}: Contains line continuation character")
 
     if paren_count > 0:
         errors.append(f"Error: {paren_count} unclosed opening parenthesis")
@@ -78,7 +82,8 @@ def check_syntax_errors(tokens, lexer, input_text):
             elif line[i:i + 2] == '*/':
                 comment_depth -= 1
                 if comment_depth < 0:
-                    errors.append(f"Line {line_num}: Closing comment */ without opening /*")
+                    errors.append(
+                        f"Line {line_num}: Closing comment */ without opening /*")
                     comment_depth = 0
                 i += 2
             else:
@@ -262,7 +267,8 @@ def main():
 
     for line, col, ttype, value in tokens:
         display_value = value if len(value) <= 100 else value[:97] + "..."
-        tree.insert("", "end", values=(line, col, ttype, display_value), tags=(ttype,))
+        tree.insert("", "end", values=(
+            line, col, ttype, display_value), tags=(ttype,))
 
     for ttype, color in TOKEN_COLORS.items():
         tree.tag_configure(ttype, foreground=color)

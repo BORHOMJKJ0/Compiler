@@ -1,8 +1,3 @@
-"""
-Comprehensive SQL Parser Test Suite
-نظام اختبار شامل لجميع ملفات SQL مع عرض شجرة التحليل
-"""
-
 import sys
 from pathlib import Path
 from antlr4 import *
@@ -12,7 +7,6 @@ import json
 
 
 class SQLErrorListener(ErrorListener):
-    """مستمع الأخطاء"""
 
     def __init__(self):
         super().__init__()
@@ -28,18 +22,16 @@ class SQLErrorListener(ErrorListener):
 
 
 class ComprehensiveTestSuite:
-    """مجموعة اختبارات شاملة"""
 
     def __init__(self):
-        # استيراد Lexer و Parser
         try:
             from BaseLexer import BaseLexer
             from SQLParser import SQLParser
             self.BaseLexer = BaseLexer
             self.SQLParser = SQLParser
-            print("✅ Successfully loaded BaseLexer and SQLParser\n")
+            print(" Successfully loaded BaseLexer and SQLParser\n")
         except ImportError as e:
-            print(f"❌ Error importing modules: {e}")
+            print(f" Error importing modules: {e}")
             print("   Make sure you have generated the parser files:")
             print("   antlr4 -Dlanguage=Python3 BaseLexer.g4")
             print("   antlr4 -Dlanguage=Python3 SQLParser.g4")
@@ -57,63 +49,56 @@ class ComprehensiveTestSuite:
         }
 
     def test_file(self, filepath, description=""):
-        """اختبار ملف SQL واحد"""
         filepath = Path(filepath)
 
         print("=" * 80)
-        print(f"🧪 TESTING: {filepath.name}")
+        print(f" TESTING: {filepath.name}")
         if description:
-            print(f"📝 Description: {description}")
+            print(f" Description: {description}")
         print("=" * 80)
 
         if not filepath.exists():
-            print(f"❌ File not found: {filepath}")
+            print(f" File not found: {filepath}")
             return None
 
-        # قراءة الملف
         with open(filepath, 'r', encoding='utf-8') as f:
             sql_code = f.read()
 
-        # عرض إحصائيات الملف
         lines = sql_code.strip().split('\n')
-        print(f"\n📊 File Statistics:")
+        print(f" File Statistics:")
         print(f"   Lines: {len(lines)}")
         print(f"   Characters: {len(sql_code)}")
         print(f"   Size: {len(sql_code.encode('utf-8'))} bytes")
 
-        # Parsing
         result = self._parse(sql_code, filepath.name)
 
-        # عرض النتائج
         print(f"\n{'=' * 80}")
         if result['success']:
-            print(f"✅ SUCCESS - File parsed successfully!")
-            print(f"   ⏱️  Parsing Time: {result['parsing_time']:.2f}ms")
-            print(f"   📏 Tree Depth: {result['tree_depth']}")
-            print(f"   🌳 Node Count: {result['node_count']}")
-            print(f"   🎯 Token Count: {result['token_count']}")
+            print(f" SUCCESS - File parsed successfully!")
+            print(f"    Parsing Time: {result['parsing_time']:.2f}ms")
+            print(f"   Tree Depth: {result['tree_depth']}")
+            print(f"    Node Count: {result['node_count']}")
+            print(f"    Token Count: {result['token_count']}")
             
-            # عرض شجرة التحليل بشكل مبسط
-            print(f"\n🌳 PARSE TREE PREVIEW:")
+            print(f" PARSE TREE PREVIEW:")
             print("-" * 40)
             self._print_tree_preview(result['tree'], self.SQLParser.ruleNames)
             print("-" * 40)
             
         else:
-            print(f"❌ FAILED - {len(result['errors'])} error(s) found")
-            print(f"\n📋 Errors:")
+            print(f" FAILED - {len(result['errors'])} error(s) found")
+            print(f" Errors:")
             for i, err in enumerate(result['errors'][:5], 1):  # عرض أول 5 أخطاء
                 print(f"\n   Error {i}:")
-                print(f"      📍 Location: Line {err['line']}, Column {err['column']}")
-                print(f"      💬 Message: {err['message'][:100]}...")
-                print(f"      🔤 Near: '{err['symbol'][:30]}'")
+                print(f"       Location: Line {err['line']}, Column {err['column']}")
+                print(f"       Message: {err['message'][:100]}...")
+                print(f"       Near: '{err['symbol'][:30]}'")
 
             if len(result['errors']) > 5:
                 print(f"\n   ... and {len(result['errors']) - 5} more errors")
 
         print(f"{'=' * 80}\n")
 
-        # حفظ النتيجة (بدون كائن الشجرة لأنه غير قابل للتحويل لـ JSON بسهولة)
         save_result = result.copy()
         del save_result['tree']
         self.results['test_files'].append(save_result)
@@ -128,34 +113,27 @@ class ComprehensiveTestSuite:
         return result
 
     def _parse(self, sql_code, filename):
-        """دالة داخلية للـ parsing"""
         start_time = datetime.now()
 
         try:
-            # 1. Lexer
             input_stream = InputStream(sql_code)
             lexer = self.BaseLexer(input_stream)
             token_stream = CommonTokenStream(lexer)
 
-            # عد التوكنز
             token_stream.fill()
             token_count = len(token_stream.tokens)
 
-            # 2. Parser
             parser = self.SQLParser(token_stream)
 
-            # Error listener
             error_listener = SQLErrorListener()
             parser.removeErrorListeners()
             parser.addErrorListener(error_listener)
 
-            # 3. Parse
             tree = parser.sqlScript()
 
             end_time = datetime.now()
             parsing_time = (end_time - start_time).total_seconds() * 1000
 
-            # النتائج
             return {
                 'filename': filename,
                 'success': len(error_listener.errors) == 0,
@@ -183,7 +161,6 @@ class ComprehensiveTestSuite:
             }
 
     def _get_tree_depth(self, node, depth=0):
-        """حساب عمق Parse Tree"""
         if node is None or node.getChildCount() == 0:
             return depth
         max_depth = depth
@@ -194,7 +171,6 @@ class ComprehensiveTestSuite:
         return max_depth
 
     def _count_nodes(self, node):
-        """عد العقد في Parse Tree"""
         if node is None: return 0
         count = 1
         for i in range(node.getChildCount()):
@@ -203,7 +179,6 @@ class ComprehensiveTestSuite:
         return count
 
     def _print_tree_preview(self, node, rule_names, indent=0, max_lines=20):
-        """طباعة معاينة للشجرة بشكل نصي"""
         if node is None or max_lines <= 0:
             return 0
         
@@ -227,35 +202,32 @@ class ComprehensiveTestSuite:
         return line_count
 
     def print_summary(self):
-        """طباعة ملخص النتائج"""
         print("\n" + "=" * 80)
-        print("📊 FINAL TEST SUMMARY")
+        print(" FINAL TEST SUMMARY")
         print("=" * 80)
 
         summary = self.results['summary']
 
-        print(f"\n📁 Files Tested: {summary['total_files']}")
-        print(f"✅ Passed: {summary['passed_files']}")
-        print(f"❌ Failed: {summary['failed_files']}")
+        print(f"Files Tested: {summary['total_files']}")
+        print(f"Passed: {summary['passed_files']}")
+        print(f" Failed: {summary['failed_files']}")
 
         if summary['total_files'] > 0:
             success_rate = (summary['passed_files'] / summary['total_files']) * 100
             print(f"📈 Success Rate: {success_rate:.1f}%")
 
         if summary['failed_files'] > 0:
-            print(f"⚠️  Total Errors: {summary['total_errors']}")
+            print(f"Total Errors: {summary['total_errors']}")
 
-        # تفاصيل كل ملف
         print(f"\n{'=' * 80}")
-        print("📋 Detailed Results:")
+        print(" Detailed Results:")
         print(f"{'=' * 80}")
 
         for result in self.results['test_files']:
-            status = "✅ PASS" if result['success'] else "❌ FAIL"
+            status = " PASS" if result['success'] else " FAIL"
             errors = f" ({len(result['errors'])} errors)" if not result['success'] else ""
             print(f"{status:10} | {result['filename']:30} | {result['parsing_time']:8.2f}ms{errors}")
 
-        # أفضل وأسوأ أداء
         if self.results['test_files']:
             print(f"\n{'=' * 80}")
             print("⏱️  Performance:")
@@ -273,34 +245,27 @@ class ComprehensiveTestSuite:
         print(f"\n{'=' * 80}\n")
 
     def save_report(self, filename='test_report.json'):
-        """حفظ تقرير JSON"""
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2, ensure_ascii=False)
-        print(f"💾 Report saved to: {filename}")
+        print(f"Report saved to: {filename}")
 
     def test_specific_queries(self):
-        """اختبار استعلامات محددة"""
         print("\n" + "=" * 80)
-        print("🎯 SPECIFIC QUERY TESTS")
+        print("SPECIFIC QUERY TESTS")
         print("=" * 80)
 
         test_cases = [
-            # Test 1: Simple SELECT
             ("SELECT * FROM Users;", "Simple SELECT"),
 
-            # Test 2: JOIN
             ("SELECT u.Name, o.Total FROM Users u INNER JOIN Orders o ON u.ID = o.UserID;",
              "INNER JOIN"),
 
-            # Test 3: Subquery
             ("SELECT * FROM (SELECT ID FROM Users) AS T;",
              "Subquery"),
 
-            # Test 4: CASE
             ("SELECT CASE WHEN x = 1 THEN 'A' ELSE 'B' END FROM T;",
              "CASE expression"),
 
-            # Test 5: Multiple statements
             ("""
              CREATE TABLE T
              (
@@ -312,14 +277,12 @@ class ComprehensiveTestSuite:
              FROM T;
              """, "Multiple statements"),
 
-            # Test 6: DECLARE and SET
             ("""
                 DECLARE @x INT;
                 SET @x = 10;
                 SELECT @x;
             """, "Variables"),
 
-            # Test 7: IF statement
             ("""
                 IF NOT EXISTS (SELECT 1 FROM T)
                 BEGIN
@@ -327,7 +290,6 @@ class ComprehensiveTestSuite:
                 END
             """, "IF NOT EXISTS"),
 
-            # Test 8: TRY-CATCH
             ("""
                 BEGIN TRY
                     SELECT 1/0;
@@ -348,12 +310,11 @@ class ComprehensiveTestSuite:
             result = self._parse(sql.strip(), f"test_{i}.sql")
 
             if result['success']:
-                print(f"✅ PASS - {result['parsing_time']:.2f}ms")
-                # عرض الشجرة للاختبارات الصغيرة
+                print(f"PASS - {result['parsing_time']:.2f}ms")
                 self._print_tree_preview(result['tree'], self.SQLParser.ruleNames, indent=1, max_lines=10)
                 passed += 1
             else:
-                print(f"❌ FAIL - {len(result['errors'])} errors")
+                print(f"FAIL - {len(result['errors'])} errors")
                 for err in result['errors'][:2]:
                     print(f"   Line {err['line']}: {err['message'][:80]}")
                 failed += 1
@@ -364,16 +325,13 @@ class ComprehensiveTestSuite:
 
 
 def main():
-    """الدالة الرئيسية"""
     print("=" * 80)
     print("         COMPREHENSIVE SQL PARSER TEST SUITE")
     print("=" * 80)
     print()
 
-    # إنشاء Test Suite
     suite = ComprehensiveTestSuite()
 
-    # قائمة ملفات الاختبار
     test_files = [
         ('sqlInput.txt', 'Main test file - Complex DDL/DML'),
         ('testing.sql', 'Same as sqlInput - Duplicate test'),
@@ -382,8 +340,7 @@ def main():
         ('full_sql_test.sql', 'Full SQL test - All features'),
     ]
 
-    # اختبار كل ملف
-    print("🚀 TESTING ALL SQL FILES")
+    print(" TESTING ALL SQL FILES")
     print("=" * 80)
     print()
 
@@ -391,18 +348,15 @@ def main():
         if Path(filepath).exists():
             suite.test_file(filepath, description)
         else:
-            print(f"⚠️  Skipping {filepath} - File not found\n")
+            print(f" Skipping {filepath} - File not found\n")
 
-    # اختبار استعلامات محددة
     suite.test_specific_queries()
 
-    # طباعة الملخص النهائي
     suite.print_summary()
 
-    # حفظ التقرير
     suite.save_report('parser_test_report.json')
 
-    print("\n✅ All tests completed!")
+    print("All tests completed!")
     print("=" * 80)
 
 

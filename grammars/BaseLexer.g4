@@ -1,9 +1,6 @@
 lexer grammar BaseLexer;
 options { language = Python3; }
 
-// ==========================
-// Keywords - Case Insensitive
-// ==========================
 ADD: [aA][dD][dD] | '[' [aA][dD][dD] ']';
 ALL: [aA][lL][lL] | '[' [aA][lL][lL] ']';
 ALTER: [aA][lL][tT][eE][rR] | '[' [aA][lL][tT][eE][rR] ']';
@@ -268,14 +265,12 @@ TABLE_SCHEMA: [tT][aA][bB][lL][eE] '_' [sS][cC][hH][eE][mM][aA] | '[' [tT][aA][b
 TABLE_NAME: [tT][aA][bB][lL][eE] '_' [nN][aA][mM][eE] | '[' [tT][aA][bB][lL][eE] '_' [nN][aA][mM][eE] ']';
 TABLE_TYPE: [tT][aA][bB][lL][eE] '_' [tT][yY][pP][eE] | '[' [tT][aA][bB][lL][eE] '_' [tT][yY][pP][eE] ']';
 VERSION: [vV][eE][rR][sS][iI][oO][nN] | '[' [vV][eE][rR][sS][iI][oO][nN] ']';
-// Punctuation
 DOT: '.';
 COMMA: ',';
 SEMI: ';';
 LPAREN: '(';
 RPAREN: ')';
 
-// Common Rules
 LINE_COMMENT: '--' ~[\r\n]* -> skip;
 BLOCK_COMMENT: '/*' .*? '*/' -> skip;
 WS: [ \t\r\n]+ -> skip;

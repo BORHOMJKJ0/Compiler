@@ -6,7 +6,6 @@ from antlr4 import *
 from antlr4.tree.Tree import TerminalNode
 from dataclasses import asdict, is_dataclass
 
-# استيراد المكونات المحلية
 from lexers.base_lexer import BaseLexer
 from BaseLexer import BaseLexer as MyBaseLexer
 from SQLParser import SQLParser as MyParser
@@ -16,7 +15,6 @@ from semantic.semantic_analyzer import SemanticAnalyzer
 from utils.error_handler import ErrorHandler
 from utils.logger import Logger
 
-# --- 1. دوال المساعدة (Helper Functions) ---
 
 def to_clean_dict(obj):
     if is_dataclass(obj):
@@ -32,22 +30,28 @@ def to_clean_dict(obj):
     else:
         return obj
 
+
 def get_tree_structure(node, rule_names, indent=0):
-    if node is None: return []
+    if node is None:
+        return []
     lines = []
     prefix = "  " * indent
     if isinstance(node, TerminalNode):
         lines.append(f"{prefix}TOKEN: {node.getText()}")
     else:
         rule_index = node.getRuleIndex()
-        rule_name = rule_names[rule_index] if rule_index < len(rule_names) else str(rule_index)
+        rule_name = rule_names[rule_index] if rule_index < len(
+            rule_names) else str(rule_index)
         lines.append(f"{prefix}RULE: {rule_name}")
         for i in range(node.getChildCount()):
-            lines.extend(get_tree_structure(node.getChild(i), rule_names, indent + 1))
+            lines.extend(get_tree_structure(
+                node.getChild(i), rule_names, indent + 1))
     return lines
 
+
 def get_tree_data_for_visualization(node, rule_names, node_id=0, parent_id=None):
-    if node is None: return [], [], node_id
+    if node is None:
+        return [], [], node_id
     nodes, edges = [], []
     current_id = node_id
     node_id += 1
@@ -58,17 +62,21 @@ def get_tree_data_for_visualization(node, rule_names, node_id=0, parent_id=None)
         })
     else:
         rule_index = node.getRuleIndex()
-        rule_name = rule_names[rule_index] if rule_index < len(rule_names) else str(rule_index)
+        rule_name = rule_names[rule_index] if rule_index < len(
+            rule_names) else str(rule_index)
         nodes.append({
             "id": current_id, "label": rule_name, "type": "rule", "shape": "ellipse",
             "color": "#4ec9b0", "font": {"size": 24, "color": "white", "bold": True}
         })
         for i in range(node.getChildCount()):
-            child_nodes, child_edges, node_id = get_tree_data_for_visualization(node.getChild(i), rule_names, node_id, current_id)
+            child_nodes, child_edges, node_id = get_tree_data_for_visualization(
+                node.getChild(i), rule_names, node_id, current_id)
             nodes.extend(child_nodes)
             edges.extend(child_edges)
-    if parent_id is not None: edges.append({"from": parent_id, "to": current_id})
+    if parent_id is not None:
+        edges.append({"from": parent_id, "to": current_id})
     return nodes, edges, node_id
+
 
 def convert_ast_to_tree(ast_obj, node_id=0, parent_id=None, key_name=None):
     nodes, edges = [], []
@@ -83,11 +91,14 @@ def convert_ast_to_tree(ast_obj, node_id=0, parent_id=None, key_name=None):
             "color": "#c586c0", "font": {"size": 26, "bold": True, "color": "white"},
             "margin": 15
         })
-        if parent_id is not None: edges.append({"from": parent_id, "to": current_id})
+        if parent_id is not None:
+            edges.append({"from": parent_id, "to": current_id})
         for key, value in ast_obj.items():
-            if key == 'type' or value is None or value == "" or value == []: continue
+            if key == 'type' or value is None or value == "" or value == []:
+                continue
             if isinstance(value, (dict, list)):
-                child_nodes, child_edges, node_id = convert_ast_to_tree(value, node_id, current_id, key)
+                child_nodes, child_edges, node_id = convert_ast_to_tree(
+                    value, node_id, current_id, key)
                 nodes.extend(child_nodes)
                 edges.extend(child_edges)
             else:
@@ -103,10 +114,13 @@ def convert_ast_to_tree(ast_obj, node_id=0, parent_id=None, key_name=None):
             "id": current_id, "label": list_label, "type": "ast_list", "shape": "diamond",
             "color": "#569cd6", "font": {"size": 20, "color": "white"}
         })
-        if parent_id is not None: edges.append({"from": parent_id, "to": current_id})
+        if parent_id is not None:
+            edges.append({"from": parent_id, "to": current_id})
         for item in ast_obj:
-            if item is None or item == "" or item == []: continue
-            child_nodes, child_edges, node_id = convert_ast_to_tree(item, node_id, current_id, list_label.rstrip('s'))
+            if item is None or item == "" or item == []:
+                continue
+            child_nodes, child_edges, node_id = convert_ast_to_tree(
+                item, node_id, current_id, list_label.rstrip('s'))
             nodes.extend(child_nodes)
             edges.extend(child_edges)
     else:
@@ -114,10 +128,10 @@ def convert_ast_to_tree(ast_obj, node_id=0, parent_id=None, key_name=None):
             "id": current_id, "label": str(ast_obj), "type": "ast_value", "shape": "box",
             "color": "#dcdcaa", "font": {"size": 22, "color": "#1e1e1e"}
         })
-        if parent_id is not None: edges.append({"from": parent_id, "to": current_id})
+        if parent_id is not None:
+            edges.append({"from": parent_id, "to": current_id})
     return nodes, edges, node_id
 
-# --- 2. دالة المعالجة الأساسية (Core Processing Function) ---
 
 def process_file(file_path, logger):
     try:
@@ -126,29 +140,27 @@ def process_file(file_path, logger):
     except Exception as e:
         return None, f"Error reading file: {e}"
 
-    # التحليل اللغوي
     base_lexer = BaseLexer(sql)
     tokens = base_lexer.get_token_list()
     classifier = TokenClassifier()
     classifier.validate_syntax(tokens, sql)
 
-    # التحليل النحوي
-    lexer = MyBaseLexer(InputStream(sql))
+    custom_lexer = BaseLexer(sql)
+    processed_sql = custom_lexer.processed_text
+    
+    lexer = MyBaseLexer(InputStream(processed_sql))
     token_stream = CommonTokenStream(lexer)
     token_stream.fill()
     parser = MyParser(token_stream)
     tree = parser.sqlScript()
 
-    # تجهيز البيانات للعرض
     parse_tree_lines = get_tree_structure(tree, MyParser.ruleNames)
     nodes, edges, _ = get_tree_data_for_visualization(tree, MyParser.ruleNames)
 
-    # بناء AST
     builder = AstBuilder()
     ast = builder.visit(tree)
     ast_json = json.dumps(to_clean_dict(ast), indent=2, ensure_ascii=False)
 
-    # التحليل الدلالي
     semantic_analyzer = SemanticAnalyzer()
     sem_errors, sem_warnings = semantic_analyzer.analyze_tokens(tokens)
 
@@ -164,7 +176,6 @@ def process_file(file_path, logger):
         "report": semantic_analyzer.generate_report()
     }, None
 
-# --- 3. دالة إنشاء صفحة العرض المرئي (Visualization Function) ---
 
 def create_tree_visualization(result, filename):
     parse_nodes_json = json.dumps(result['nodes'], ensure_ascii=False)
@@ -201,7 +212,7 @@ def create_tree_visualization(result, filename):
     </head>
     <body>
         <div class="header">
-            <h1>🌳 SQL Compiler Visualizer - {filename}</h1>
+            <h1> SQL Compiler Visualizer - {filename}</h1>
             <div class="tree-selector">
                 <button id="parseTreeBtn" class="tree-btn active" onclick="showParseTree()">Parse Tree</button>
                 <button id="astTreeBtn" class="tree-btn" onclick="showASTTree()">AST Tree</button>
@@ -268,38 +279,40 @@ def create_tree_visualization(result, filename):
     """
     return html
 
-# --- 4. الدالة الرئيسية (Main Function) ---
 
 def main():
     logger = Logger("SQLCompiler")
-    files = [f for f in os.listdir('.') if f.endswith('.sql') or f.endswith('.txt')]
-    files = [f for f in files if f in ['sqlInput.txt', 'testing.sql', 'train.sql', 'train2.sql','full_sql_test.sql']]
+    files = [f for f in os.listdir('.') if f.endswith(
+        '.sql') or f.endswith('.txt')]
+    files = [f for f in files if f in ['sqlInput.txt', 'testing.sql',
+                                       'train.sql', 'train2.sql', 'full_sql_test.sql']]
     if not files:
         print("No SQL files found.")
         return
     while True:
         print("\n" + "=" * 60)
-        print("🚀 SQL COMPILER - INTERACTIVE DASHBOARD")
+        print("SQL COMPILER - INTERACTIVE DASHBOARD")
         print("=" * 60)
         for i, f in enumerate(files, 1):
             print(f"{i}. {f}")
         print("0. Exit")
         print("=" * 60)
         choice = input("Select a file (0-{}): ".format(len(files)))
-        if choice == '0': break
+        if choice == '0':
+            break
         try:
             idx = int(choice) - 1
             if 0 <= idx < len(files):
                 selected_file = files[idx]
-                print(f"\n🔄 Analyzing {selected_file}...")
-                
-                # استدعاء دالة المعالجة
+                print(f"Analyzing {selected_file}...")
+
                 result, error = process_file(selected_file, logger)
-                
+
                 if error:
-                    print(f"❌ Error: {error}")
+                    print(f"Error: {error}")
                     continue
-                print(f"✅ Analysis Complete! Tokens: {result['tokens_count']}, Errors: {result['errors']}")
+                print(
+                    f"Analysis Complete! Tokens: {result['tokens_count']}, Errors: {result['errors']}")
                 while True:
                     print("\nOptions:")
                     print("1. View Trees in Browser (Visual)")
@@ -312,19 +325,26 @@ def main():
                         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html", encoding='utf-8') as f:
                             f.write(html)
                             webbrowser.open(f.name)
-                            print(f"✅ Visualization opened in browser.")
+                            print("Visualization opened in browser.")
                     elif sub == '2':
                         print("\n=== PARSE TREE PREVIEW ===")
                         lines = result['parse_tree'].split('\n')
-                        for line in lines[:100]: print(line)
-                        if len(lines) > 100: print(f"... ({len(lines)-100} more lines)")
+                        for line in lines[:100]:
+                            print(line)
+                        if len(lines) > 100:
+                            print(f"... ({len(lines)-100} more lines)")
                     elif sub == '3':
                         print("\n=== AST JSON ===")
                         print(result['ast_json'][:2000])
-                        if len(result['ast_json']) > 2000: print("... (truncated)")
-                    elif sub == '4': break
-            else: print("❌ Invalid choice.")
-        except Exception as e: print(f"❌ Error: {e}")
+                        if len(result['ast_json']) > 2000:
+                            print("... (truncated)")
+                    elif sub == '4':
+                        break
+            else:
+                print("Invalid choice.")
+        except Exception as e:
+            print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     main()

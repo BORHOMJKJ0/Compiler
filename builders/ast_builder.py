@@ -33,7 +33,6 @@ class AstBuilder(MyParserVisitor):
     def visitStatement(self, ctx: MyParser.StatementContext):
         stmt = self.statement_builder.build_statement(ctx)
         if stmt is None:
-            # Fallback to generic node if not handled
             from dataclasses import dataclass
 
             @dataclass
@@ -43,7 +42,6 @@ class AstBuilder(MyParserVisitor):
             return UnknownStatementNode(type="UnknownStatement", text=ctx.getText()[:50] + "...")
         return stmt
 
-    # Delegate all other visits to statement builder
     def visitGoStatement(self, ctx):
         return self.statement_builder.build_go(ctx)
 

@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1768865965891,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768913283615,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,67 @@\n+from dataclasses import dataclass\r\n+from typing import List, Optional\r\n+from .base_nodes import ASTNode\r\n+\r\n+\r\n+@dataclass\r\n+class ExpressionNode(ASTNode):\r\n+    pass\r\n+\r\n+\r\n+@dataclass\r\n+class LiteralExpressionNode(ExpressionNode):\r\n+    value: str\r\n+    literal_type: str  \r\n+\r\n+\r\n+@dataclass\r\n+class ColumnReferenceExpressionNode(ExpressionNode):\r\n+    from .statement_nodes import TableNameNode\r\n+    column_name: str\r\n+    table_name: Optional['TableNameNode'] = None\r\n+\r\n+\r\n+@dataclass\r\n+class FunctionCallExpressionNode(ExpressionNode):\r\n+    function_name: str\r\n+    arguments: Optional[List[ExpressionNode]] = None\r\n+\r\n+\r\n+@dataclass\r\n+class VariableExpressionNode(ExpressionNode):\r\n+    variable_name: str\r\n+\r\n+\r\n+@dataclass\r\n+class BinaryExpressionNode(ExpressionNode):\r\n+    left: ExpressionNode\r\n+    operator: str\r\n+    right: ExpressionNode\r\n+\r\n+\r\n+@dataclass\r\n+class ParenthesizedExpressionNode(ExpressionNode):\r\n+    expression: ExpressionNode\r\n+\r\n+\r\n+@dataclass\r\n+class CaseExpressionNode(ExpressionNode):\r\n+    keywordCase: str\r\n+    whenClauseList: List['WhenClauseNode']\r\n+    elseClause: Optional['ElseClauseNode']\r\n+    keywordEnd: str\r\n+\r\n+\r\n+@dataclass\r\n+class WhenClauseNode(ASTNode):\r\n+    from .condition_nodes import ConditionNode\r\n+    keywordWhen: str\r\n+    condition: 'ConditionNode'\r\n+    keyword: str\r\n+    expression: ExpressionNode\r\n+\r\n+\r\n+@dataclass\r\n+class ElseClauseNode(ASTNode):\r\n+    keywordElse: str\r\n+    expression: ExpressionNode\r\n"
                 }
             ],
             "date": 1768865965891,

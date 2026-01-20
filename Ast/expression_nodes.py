@@ -11,7 +11,7 @@ class ExpressionNode(ASTNode):
 @dataclass
 class LiteralExpressionNode(ExpressionNode):
     value: str
-    literal_type: str  # "NUMBER", "STRING_SINGLE", "STRING_DOUBLE", "KEYWORD", "OPERATOR"
+    literal_type: str
 
 
 @dataclass

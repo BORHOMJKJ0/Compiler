@@ -8,7 +8,6 @@ class StatementBuilder:
         self.cond_builder = ConditionBuilder()
 
     def build_statement(self, ctx):
-        # Handle semicolon as a valid but empty statement
         if ctx.getText() == ';':
             from dataclasses import dataclass
 
@@ -17,7 +16,6 @@ class StatementBuilder:
                 type: str = "Semicolon"
             return SemicolonNode()
 
-        # Check for each possible statement type in the context
         if hasattr(ctx, 'ddlStatement') and ctx.ddlStatement():
             ddl = ctx.ddlStatement()
             if hasattr(ddl, 'createTableStatement') and ddl.createTableStatement():
@@ -244,7 +242,6 @@ class StatementBuilder:
         if hasattr(ctx, 'blockStatement') and ctx.blockStatement():
             blockStatement = self.build_block(ctx.blockStatement())
         elif hasattr(ctx, 'statement') and ctx.statement():
-            # If it's a single statement instead of a block
             blockStatement = self.build_statement(ctx.statement())
 
         return IfStatementNode(
