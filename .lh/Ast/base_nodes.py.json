@@ -1,0 +1,22 @@
+{
+    "sourceFile": "Ast/base_nodes.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1768865918698,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768891766078,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,11 +3,10 @@\n \r\n \r\n @dataclass\r\n class ASTNode:\r\n-    \"\"\"Base class for all AST nodes\"\"\"\r\n     pass\r\n \r\n \r\n @dataclass\r\n class StatementNode(ASTNode):\r\n-    pass\n\\ No newline at end of file\n+    pass\r\n"
+                }
+            ],
+            "date": 1768865918698,
+            "name": "Commit-0",
+            "content": "from dataclasses import dataclass\r\nfrom typing import Optional\r\n\r\n\r\n@dataclass\r\nclass ASTNode:\r\n    \"\"\"Base class for all AST nodes\"\"\"\r\n    pass\r\n\r\n\r\n@dataclass\r\nclass StatementNode(ASTNode):\r\n    pass"
+        }
+    ]
+}

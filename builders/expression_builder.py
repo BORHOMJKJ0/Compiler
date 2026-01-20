@@ -2,15 +2,13 @@ from Ast.statement_nodes import TableNameNode
 
 
 class ExpressionBuilder:
-    """Builder for expression AST nodes"""
 
     def build_expression(self, ctx):
-        """Build an expression node from context"""
         from Ast.expression_nodes import ParenthesizedExpressionNode, BinaryExpressionNode, VariableExpressionNode, LiteralExpressionNode
-        
+
         if hasattr(ctx, 'primary') and ctx.primary():
             return self.build_primary(ctx.primary())
-        
+
         if hasattr(ctx, 'literal') and ctx.literal():
             return self.build_literal(ctx.literal())
         elif hasattr(ctx, 'columnReference') and ctx.columnReference():
@@ -41,9 +39,10 @@ class ExpressionBuilder:
         elif hasattr(ctx, 'STRING_DOUBLE') and ctx.STRING_DOUBLE():
             value = ctx.STRING_DOUBLE().getText()
             return LiteralExpressionNode(value=value, literal_type="STRING_DOUBLE")
-        
+
         # Fallback for unknown expression types
         from dataclasses import dataclass
+
         @dataclass
         class UnknownExpressionNode:
             type: str
@@ -51,9 +50,8 @@ class ExpressionBuilder:
         return UnknownExpressionNode(type="UnknownExpression", text=ctx.getText()[:50])
 
     def build_primary(self, ctx):
-        """Build primary expression"""
         from Ast.expression_nodes import LiteralExpressionNode, VariableExpressionNode
-        
+
         if hasattr(ctx, 'literal') and ctx.literal():
             return self.build_literal(ctx.literal())
         elif hasattr(ctx, 'columnReference') and ctx.columnReference():
@@ -72,11 +70,10 @@ class ExpressionBuilder:
                 inner.value = op + inner.value
                 return inner
             return inner
-        
+
         return None
 
     def build_literal(self, ctx):
-        """Build a literal expression node"""
         from Ast.expression_nodes import LiteralExpressionNode
         if hasattr(ctx, 'NUMBER') and ctx.NUMBER():
             value = ctx.NUMBER().getText()
@@ -92,7 +89,6 @@ class ExpressionBuilder:
             return LiteralExpressionNode(value=ctx.getText(), literal_type="KEYWORD")
 
     def build_column_reference(self, ctx):
-        """Build a column reference node"""
         from Ast.expression_nodes import ColumnReferenceExpressionNode
         tableName = None
         columnName = None
@@ -105,14 +101,13 @@ class ExpressionBuilder:
         return ColumnReferenceExpressionNode(table_name=tableName, column_name=columnName)
 
     def build_function_call(self, ctx):
-        """Build a function call node"""
         from Ast.expression_nodes import FunctionCallExpressionNode
         functionName = ctx.getChild(0).getText()
-        expressionList = self.build_expression_list(ctx.expressionList()) if hasattr(ctx, 'expressionList') and ctx.expressionList() else None
+        expressionList = self.build_expression_list(ctx.expressionList()) if hasattr(
+            ctx, 'expressionList') and ctx.expressionList() else None
         return FunctionCallExpressionNode(function_name=functionName, arguments=expressionList)
 
     def build_expression_list(self, ctx):
-        """Build a list of expressions"""
         expressions = []
         for expression in ctx.expression():
             expr = self.build_expression(expression)
@@ -121,7 +116,6 @@ class ExpressionBuilder:
         return expressions
 
     def build_case_expression(self, ctx):
-        """Build a CASE expression node"""
         from Ast.expression_nodes import CaseExpressionNode
         whenClauseList = []
         if hasattr(ctx, 'whenClause'):
@@ -129,7 +123,8 @@ class ExpressionBuilder:
                 clause = self.build_when_clause(whenClause)
                 if clause is not None:
                     whenClauseList.append(clause)
-        elseClause = self.build_else_clause(ctx.elseClause()) if hasattr(ctx, 'elseClause') and ctx.elseClause() else None
+        elseClause = self.build_else_clause(ctx.elseClause()) if hasattr(
+            ctx, 'elseClause') and ctx.elseClause() else None
         return CaseExpressionNode(
             keywordCase="CASE",
             whenClauseList=whenClauseList,
@@ -138,7 +133,6 @@ class ExpressionBuilder:
         )
 
     def build_when_clause(self, ctx):
-        """Build a WHEN clause node"""
         from Ast.expression_nodes import WhenClauseNode
         from .condition_builder import ConditionBuilder
         condition_builder = ConditionBuilder()
@@ -153,13 +147,11 @@ class ExpressionBuilder:
         )
 
     def build_else_clause(self, ctx):
-        """Build an ELSE clause node"""
         from Ast.expression_nodes import ElseClauseNode
         expression = self.build_expression(ctx.expression())
         return ElseClauseNode(keywordElse="ELSE", expression=expression)
 
     def build_table_name(self, ctx):
-        """Build a table name node"""
         text = ctx.getText()
         if '.' in text:
             parts = text.split('.')

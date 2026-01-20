@@ -1,46 +1,55 @@
 {
-  "timestamp": "2026-01-19T09:44:47.308579",
+  "timestamp": "2026-01-20T13:31:33.499576",
   "test_files": [
     {
       "filename": "sqlInput.txt",
       "success": true,
       "errors": [],
-      "parsing_time": 160.66,
-      "tree_depth": 18,
-      "node_count": 588,
-      "token_count": 326
+      "parsing_time": 208.593,
+      "tree_depth": 16,
+      "node_count": 281,
+      "token_count": 199
     },
     {
       "filename": "testing.sql",
       "success": true,
       "errors": [],
-      "parsing_time": 74.845,
-      "tree_depth": 18,
-      "node_count": 588,
+      "parsing_time": 329.99899999999997,
+      "tree_depth": 19,
+      "node_count": 607,
       "token_count": 326
     },
     {
       "filename": "train.sql",
       "success": true,
       "errors": [],
-      "parsing_time": 78.045,
+      "parsing_time": 132.00500000000002,
       "tree_depth": 18,
-      "node_count": 609,
+      "node_count": 610,
       "token_count": 648
     },
     {
       "filename": "train2.sql",
       "success": true,
       "errors": [],
-      "parsing_time": 46.327,
+      "parsing_time": 41.008,
       "tree_depth": 16,
-      "node_count": 284,
-      "token_count": 202
+      "node_count": 281,
+      "token_count": 199
+    },
+    {
+      "filename": "full_sql_test.sql",
+      "success": true,
+      "errors": [],
+      "parsing_time": 26.518,
+      "tree_depth": 0,
+      "node_count": 1,
+      "token_count": 519
     }
   ],
   "summary": {
-    "total_files": 4,
-    "passed_files": 4,
+    "total_files": 5,
+    "passed_files": 5,
     "failed_files": 0,
     "total_errors": 0
   }

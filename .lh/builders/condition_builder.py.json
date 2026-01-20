@@ -1,0 +1,26 @@
+{
+    "sourceFile": "builders/condition_builder.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1768865211626,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768865906049,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,10 +22,9 @@\n             return BinaryConditionNode(left=left, operator=operator, right=right)\n \n         elif hasattr(ctx, 'expressionList') and ctx.expressionList():\n             left = expr_builder.build_expression(ctx.expression(0))\n-            expressionList = expr_builder.build_expression_list(\n-                ctx.expressionList())\n+            expressionList = expr_builder.build_expression_list(ctx.expressionList())\n             keywordIn = \"IN\"\n             keywordNot = \"NOT\" if \"NOT\" in ctx.getText().upper() else None\n             return InConditionNode(\n                 left=left,\n@@ -55,9 +54,8 @@\n             return LogicalConditionNode(left=left, operator=operator, right=right)\n \n         # Fallback for EXISTS or other conditions\n         from dataclasses import dataclass\n-\n         @dataclass\n         class GenericConditionNode:\n             type: str\n             text: str\n"
+                },
+                {
+                    "date": 1768866013688,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,8 @@\n class ConditionBuilder:\n     \"\"\"Builder for condition AST nodes\"\"\"\n \n     def build_condition(self, ctx):\n-        \"\"\"Build a condition node from context\"\"\"\n         from builders.expression_builder import ExpressionBuilder\n         from Ast.condition_nodes import BinaryConditionNode, InConditionNode, IsNotConditionNode, ParenthesizedConditionNode, LogicalConditionNode\n         expr_builder = ExpressionBuilder()\n \n"
+                }
+            ],
+            "date": 1768865211626,
+            "name": "Commit-0",
+            "content": "class ConditionBuilder:\n    \"\"\"Builder for condition AST nodes\"\"\"\n\n    def build_condition(self, ctx):\n        \"\"\"Build a condition node from context\"\"\"\n        from builders.expression_builder import ExpressionBuilder\n        from Ast.condition_nodes import BinaryConditionNode, InConditionNode, IsNotConditionNode, ParenthesizedConditionNode, LogicalConditionNode\n        expr_builder = ExpressionBuilder()\n\n        if hasattr(ctx, 'expression') and len(ctx.expression()) == 2:\n            left = expr_builder.build_expression(ctx.expression(0))\n            right = expr_builder.build_expression(ctx.expression(1))\n            operator = None\n            if hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():\n                operator = ctx.OPERATOR().getText()\n            elif hasattr(ctx, 'binaryOp') and ctx.binaryOp():\n                operator = ctx.binaryOp().getText()\n            elif hasattr(ctx, 'KEYWORD') and ctx.KEYWORD():\n                keywords = ctx.KEYWORD()\n                if len(keywords) == 1:\n                    operator = keywords[0].getText()\n            return BinaryConditionNode(left=left, operator=operator, right=right)\n\n        elif hasattr(ctx, 'expressionList') and ctx.expressionList():\n            left = expr_builder.build_expression(ctx.expression(0))\n            expressionList = expr_builder.build_expression_list(\n                ctx.expressionList())\n            keywordIn = \"IN\"\n            keywordNot = \"NOT\" if \"NOT\" in ctx.getText().upper() else None\n            return InConditionNode(\n                left=left,\n                keywordIn=keywordIn,\n                expressionList=expressionList,\n                keywordNot=keywordNot\n            )\n\n        elif \"IS\" in ctx.getText().upper() and hasattr(ctx, 'expression') and len(ctx.expression()) == 1:\n            left = expr_builder.build_expression(ctx.expression(0))\n            keywordIs = \"IS\"\n            keywordNot = \"NOT\" if \"NOT\" in ctx.getText().upper() else None\n            return IsNotConditionNode(\n                left=left,\n                keywordIs=keywordIs,\n                keywordNot=keywordNot\n            )\n\n        elif hasattr(ctx, 'condition') and len(ctx.condition()) == 1:\n            condition = self.build_condition(ctx.condition(0))\n            return ParenthesizedConditionNode(condition=condition)\n\n        elif hasattr(ctx, 'condition') and len(ctx.condition()) == 2:\n            left = self.build_condition(ctx.condition(0))\n            right = self.build_condition(ctx.condition(1))\n            operator = \"AND\" if \"AND\" in ctx.getText().upper() else \"OR\"\n            return LogicalConditionNode(left=left, operator=operator, right=right)\n\n        # Fallback for EXISTS or other conditions\n        from dataclasses import dataclass\n\n        @dataclass\n        class GenericConditionNode:\n            type: str\n            text: str\n        return GenericConditionNode(type=\"Condition\", text=ctx.getText()[:50])\n"
+        }
+    ]
+}

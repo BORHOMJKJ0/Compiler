@@ -1,0 +1,18 @@
+{
+    "sourceFile": "Ast/expression_nodes.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1768865965891,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1768865965891,
+            "name": "Commit-0",
+            "content": "from dataclasses import dataclass\r\nfrom typing import List, Optional\r\nfrom .base_nodes import ASTNode\r\n\r\n\r\n@dataclass\r\nclass ExpressionNode(ASTNode):\r\n    pass\r\n\r\n\r\n@dataclass\r\nclass LiteralExpressionNode(ExpressionNode):\r\n    value: str\r\n    literal_type: str  # \"NUMBER\", \"STRING_SINGLE\", \"STRING_DOUBLE\", \"KEYWORD\", \"OPERATOR\"\r\n\r\n\r\n@dataclass\r\nclass ColumnReferenceExpressionNode(ExpressionNode):\r\n    from .statement_nodes import TableNameNode\r\n    column_name: str\r\n    table_name: Optional['TableNameNode'] = None\r\n\r\n\r\n@dataclass\r\nclass FunctionCallExpressionNode(ExpressionNode):\r\n    function_name: str\r\n    arguments: Optional[List[ExpressionNode]] = None\r\n\r\n\r\n@dataclass\r\nclass VariableExpressionNode(ExpressionNode):\r\n    variable_name: str\r\n\r\n\r\n@dataclass\r\nclass BinaryExpressionNode(ExpressionNode):\r\n    left: ExpressionNode\r\n    operator: str\r\n    right: ExpressionNode\r\n\r\n\r\n@dataclass\r\nclass ParenthesizedExpressionNode(ExpressionNode):\r\n    expression: ExpressionNode\r\n\r\n\r\n@dataclass\r\nclass CaseExpressionNode(ExpressionNode):\r\n    keywordCase: str\r\n    whenClauseList: List['WhenClauseNode']\r\n    elseClause: Optional['ElseClauseNode']\r\n    keywordEnd: str\r\n\r\n\r\n@dataclass\r\nclass WhenClauseNode(ASTNode):\r\n    from .condition_nodes import ConditionNode\r\n    keywordWhen: str\r\n    condition: 'ConditionNode'\r\n    keyword: str\r\n    expression: ExpressionNode\r\n\r\n\r\n@dataclass\r\nclass ElseClauseNode(ASTNode):\r\n    keywordElse: str\r\n    expression: ExpressionNode"
+        }
+    ]
+}

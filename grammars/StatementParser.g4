@@ -2,7 +2,6 @@ parser grammar StatementParser;
 options { tokenVocab=BaseLexer; }
 import ExpressionParser;
 
-// القاعدة الأساسية للبرنامج
 sqlScript: batch*;
 batch: (statement | GO)+;
 
@@ -17,7 +16,6 @@ statement
     | SEMI
     ;
 
-// DDL
 ddlStatement: createTableStatement | alterTableStatement;
 
 createTableStatement
@@ -30,9 +28,9 @@ columnDefinition: columnName dataType constraint*;
 
 dataType: (INT | NVARCHAR | BIGINT | DATE | identifier) typeSize?;
 
-typeSize: LPAREN (NUMBER | identifier) (COMMA NUMBER)* RPAREN;
+typeSize: LPAREN (NUMBER | identifier) (COMMA NUMBER)* RPAREN ;
 
-constraint: (NOT NULL | NULL | PRIMARY KEY (CLUSTERED | NONCLUSTERED)? (LPAREN columnList RPAREN)? | identifier)+;
+constraint: (NOT NULL | NULL | PRIMARY KEY (CLUSTERED | NONCLUSTERED)? (LPAREN columnList RPAREN)?  | DEFAULT expression| identifier)+;
 
 alterTableStatement
     : ALTER TABLE tableName (addColumnClause | dropConstraintClause)
@@ -44,10 +42,8 @@ dropConstraintClause: DROP (CONSTRAINT | COLUMN) identifier;
 
 truncateStatement: TRUNCATE TABLE tableName;
 
-// DML
 dmlStatement: selectStatement | insertStatement | updateStatement | deleteStatement;
 
-// تجاوز قاعدة selectStatement الفارغة من ExpressionParser
 selectStatement
     : SELECT selectList (FROM tableList)? (WHERE condition)? (GROUP BY expressionList)? (HAVING condition)? (ORDER BY orderByList)?
     ;
@@ -89,7 +85,6 @@ assignment: columnName OPERATOR expression;
 
 deleteStatement: DELETE FROM? tableName (WHERE condition)?;
 
-// Control Flow
 controlFlowStatement: ifStatement | tryCatchStatement | blockStatement;
 
 ifStatement: IF (NOT EXISTS LPAREN selectStatement RPAREN | condition)? thenBlock (ELSE elseBlock)?;
@@ -105,12 +100,10 @@ tryCatchStatement
       BEGIN CATCH statement* END CATCH
     ;
 
-// Variables
 variableStatement: declareStatement | setStatement;
 
 declareStatement: DECLARE VARIABLE dataType (OPERATOR expression)?;
 
 setStatement: SET (VARIABLE | columnName) OPERATOR expression;
 
-// EXEC
 execStatement: EXEC (identifier | SP_EXECUTESQL) expressionList?;

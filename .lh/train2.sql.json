@@ -1,0 +1,22 @@
+{
+    "sourceFile": "train2.sql",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1768891195297,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768891219135,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n     USER_KEY INT NULL,\r\n     ACTION_DATETIME DATE NULL,\r\n     SOURCE NVARCHAR(20) NULL,\r\n     [ACTION] NVARCHAR(20) NULL,\r\n-    [DESC NVARCHAR(100) NULL,\r\n+    [DESC] NVARCHAR(100) NULL,\r\n     CONSTRAINT PK_TRACKING\r\n         PRIMARY KEY CLUSTERED (TRACKING_KEY)\r\n )\r\n \r\n"
+                }
+            ],
+            "date": 1768891195297,
+            "name": "Commit-0",
+            "content": "IF not exists (select * from sysobjects where name='TRACKING' and xtype='U')\r\n\r\nBEGIN\r\n\r\nCREATE TABLE dbo.TRACKING (\r\n    TRACKING_KEY INT NOT NULL,\r\n    C_KEY INT NULL,\r\n    USER_KEY INT NULL,\r\n    ACTION_DATETIME DATE NULL,\r\n    SOURCE NVARCHAR(20) NULL,\r\n    [ACTION] NVARCHAR(20) NULL,\r\n    [DESC NVARCHAR(100) NULL,\r\n    CONSTRAINT PK_TRACKING\r\n        PRIMARY KEY CLUSTERED (TRACKING_KEY)\r\n)\r\n\r\nINSERT INTO TRACKING (\r\n        [TRACKING_KEY],\r\n        [C_KEY],\r\n        [USER_KEY],\r\n        [ACTION_DATETIME],\r\n        [SOURCE],\r\n        [ACTION],\r\n        [DESC]\r\n    )\r\n    VALUES (\r\n        -1,\r\n        -1,   \r\n        -1,  \r\n        NULL,\r\n        '-',\r\n        'OTHER',\r\n        '-' \r\n    )\r\n\r\nEND\r\nGO\r\n\r\n\r\nINSERT INTO TRACKING\r\n(\r\n    [TRACKING_KEY],\r\n    C_KEY,\r\n    USER_KEY,\r\n    ACTION_DATETIME,\r\n    [SOURCE],\r\n    [ACTION],\r\n    [DESC]\r\n)\r\nSELECT\r\n    [STG_TRACKING].[TRACKING_KEY],\r\n    [STG_TRACKING].[C_KEY],\r\n    [STG_TRACKING].USER_KEY,\r\n    [STG_TRACKING].ACTION_DATETIME,\r\n    [STG_TRACKING].SOURCE,\r\n    [STG_TRACKING].[ACTION],\r\n    [STG_TRACKING].[DESC]\r\nFROM [STG_TRACKING]\r\nINNER JOIN [USERS]\r\n    ON [USERS].USER_KEY = [STG_TRACKING].USER_KEY AND [USERS].[GROUP_KEY] IN (11,2,3,4)\r\nWHERE NOT EXISTS (\r\n    SELECT 1\r\n    FROM TRACKING \r\n    WHERE TRACKING.[TRACKING_KEY] = [STG_TRACKING].[TRACKING_KEY]\r\n)\r\n\r\nGO"
+        }
+    ]
+}

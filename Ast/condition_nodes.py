@@ -5,7 +5,6 @@ from .base_nodes import ASTNode
 
 @dataclass
 class ConditionNode(ASTNode):
-    """Base class for condition nodes"""
     pass
 
 

@@ -273,7 +273,7 @@ def create_tree_visualization(result, filename):
 def main():
     logger = Logger("SQLCompiler")
     files = [f for f in os.listdir('.') if f.endswith('.sql') or f.endswith('.txt')]
-    files = [f for f in files if f in ['sqlInput.txt', 'testing.sql', 'train.sql', 'train2.sql']]
+    files = [f for f in files if f in ['sqlInput.txt', 'testing.sql', 'train.sql', 'train2.sql','full_sql_test.sql']]
     if not files:
         print("No SQL files found.")
         return

@@ -379,6 +379,7 @@ def main():
         ('testing.sql', 'Same as sqlInput - Duplicate test'),
         ('train.sql', 'Training queries - Various SQL patterns'),
         ('train2.sql', 'Advanced training - Constraints & JOINs'),
+        ('full_sql_test.sql', 'Full SQL test - All features'),
     ]
 
     # اختبار كل ملف

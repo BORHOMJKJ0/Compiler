@@ -5,7 +5,6 @@ from .base_nodes import ASTNode
 
 @dataclass
 class ExpressionNode(ASTNode):
-    """Base class for expression nodes"""
     pass
 
 

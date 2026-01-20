@@ -1,0 +1,26 @@
+{
+    "sourceFile": "grammars/BaseLexer.g4",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1768863309035,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768863316569,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -88,9 +88,9 @@\n STRING_SINGLE: [nN]? '\\'' ( '\\'\\'' | ~['] )* '\\'';\r\n STRING_DOUBLE: [nN]? '\"' ( '\"\"' | ~[\"] )* '\"';\r\n \r\n BRACKET_IDENTIFIER: '[' (~[\\]])* ']';\r\n-VARIABLE: '@' [a-zA-Z_] [a-zA-Z0-9_]* | '@' [a-zA-Z_] [a-zA-Z0-9_]*;\r\n+VARIABLE: '@' [a-zA-Z_] [a-zA-Z0-9_]* | '@@' [a-zA-Z_] [a-zA-Z0-9_]*;\r\n IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;\r\n NUMBER: [0-9]+ ('.' [0-9]+)?;\r\n \r\n OPERATOR: '+' | '-' | '*' | '/' | '=' | '<>' | '!=' | '<' | '>' | '<=' | '>=' | '+=' ;\r\n"
+                },
+                {
+                    "date": 1768863338877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -92,5 +92,5 @@\n VARIABLE: '@' [a-zA-Z_] [a-zA-Z0-9_]* | '@@' [a-zA-Z_] [a-zA-Z0-9_]*;\r\n IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;\r\n NUMBER: [0-9]+ ('.' [0-9]+)?;\r\n \r\n-OPERATOR: '+' | '-' | '*' | '/' | '=' | '<>' | '!=' | '<' | '>' | '<=' | '>=' | '+=' ;\r\n+OPERATOR: '+' | '-' | '*' | '/' | '=' | '<>' | '!=' | '<' | '>' | '<=' | '>=' | '+=' | ;\r\n"
+                }
+            ],
+            "date": 1768863309035,
+            "name": "Commit-0",
+            "content": "lexer grammar BaseLexer;\r\n\r\noptions { language = Python3; }\r\n\r\n// Keywords - Case Insensitive\r\nSELECT: [sS][eE][lL][eE][cC][tT];\r\nFROM: [fF][rR][oO][mM];\r\nWHERE: [wW][hH][eE][rR][eE];\r\nINSERT: [iI][nN][sS][eE][rR][tT];\r\nINTO: [iI][nN][tT][oO];\r\nUPDATE: [uU][pP][dD][aA][tT][eE];\r\nDELETE: [dD][eE][lL][eE][tT][eE];\r\nCREATE: [cC][rR][eE][aA][tT][eE];\r\nALTER: [aA][lL][tT][eE][rR];\r\nTABLE: [tT][aA][bB][lL][eE];\r\nDROP: [dD][rR][oO][pP];\r\nADD: [aA][dD][dD];\r\nVALUES: [vV][aA][lL][uU][eE][sS];\r\nSET: [sS][eE][tT];\r\nJOIN: [jJ][oO][iI][nN];\r\nINNER: [iI][nN][nN][eE][rR];\r\nLEFT: [lL][eE][fF][tT];\r\nRIGHT: [rR][iI][gG][hH][tT];\r\nFULL: [fF][uU][lL][lL];\r\nOUTER: [oO][uU][tT][eE][rR];\r\nON: [oO][nN];\r\nAND: [aA][nN][dD];\r\nOR: [oO][rR];\r\nNOT: [nN][oO][tT];\r\nEXISTS: [eE][xX][iI][sS][tT][sS];\r\nIF: [iI][fF];\r\nBEGIN: [bB][eE][gG][iI][nN];\r\nEND: [eE][nN][dD];\r\nTRY: [tT][rR][yY];\r\nCATCH: [cC][aA][tT][cC][hH];\r\nDECLARE: [dD][eE][cC][lL][aA][rR][eE];\r\nEXEC: [eE][xX][eE][cC];\r\nGO: [gG][oO];\r\nCASE: [cC][aA][sS][eE];\r\nWHEN: [wW][hH][eE][nN];\r\nTHEN: [tT][hH][eE][nN];\r\nELSE: [eE][lL][sS][eE];\r\nNULL: [nN][uU][lL][lL];\r\nIN: [iI][nN];\r\nIS: [iI][sS];\r\nLIKE: [lL][iI][kK][eE];\r\nBETWEEN: [bB][eE][tT][wW][eE][eE][nN];\r\nORDER: [oO][rR][dD][eE][rR];\r\nBY: [bB][yY];\r\nGROUP: [gG][rR][oO][uU][pP];\r\nHAVING: [hH][aA][vV][iI][nN][gG];\r\nASC: [aA][sS][cC];\r\nDESC: [dD][eE][sS][cC];\r\nAS: [aA][sS];\r\nMAX: [mM][aA][xX];\r\nAVG: [aA][vV][gG];\r\nTRUNCATE: [tT][rR][uU][nN][cC][aA][tT][eE];\r\nPRIMARY: [pP][rR][iI][mM][aA][rR][yY];\r\nKEY: [kK][eE][yY];\r\nCONSTRAINT: [cC][oO][nN][sS][tT][rR][aA][iI][nN][tT];\r\nCOLUMN: [cC][oO][lL][uU][mM][nN];\r\n\r\n// Data Types\r\nINT: [iI][nN][tT];\r\nNVARCHAR: [nN][vV][aA][rR][cC][hH][aA][rR];\r\nBIGINT: [bB][iI][gG][iI][nN][tT];\r\nDATE: [dD][aA][tT][eE];\r\n\r\n// Punctuation\r\nDOT: '.';\r\nCOMMA: ',';\r\nSEMI: ';';\r\nLPAREN: '(';\r\nRPAREN: ')';\r\n\r\n// Other SQL specific\r\nSP_EXECUTESQL: [sS][pP] '_' [eE][xX][eE][cC][uU][tT][eE][sS][qQ][lL];\r\n\r\n// T-SQL Specific Keywords\r\nCLUSTERED: [cC][lL][uU][sS][tT][eE][rR][eE][dD];\r\nNONCLUSTERED: [nN][oO][nN][cC][lL][uU][sS][tT][eE][rR][eE][dD];\r\n\r\n// Common Rules\r\nLINE_COMMENT: '--' ~[\\r\\n]* -> skip;\r\nBLOCK_COMMENT: '/*' .*? '*/' -> skip;\r\nWS: [ \\t\\r\\n]+ -> skip;\r\n\r\nSTRING_SINGLE: [nN]? '\\'' ( '\\'\\'' | ~['] )* '\\'';\r\nSTRING_DOUBLE: [nN]? '\"' ( '\"\"' | ~[\"] )* '\"';\r\n\r\nBRACKET_IDENTIFIER: '[' (~[\\]])* ']';\r\nVARIABLE: '@' [a-zA-Z_] [a-zA-Z0-9_]* | ;\r\nIDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;\r\nNUMBER: [0-9]+ ('.' [0-9]+)?;\r\n\r\nOPERATOR: '+' | '-' | '*' | '/' | '=' | '<>' | '!=' | '<' | '>' | '<=' | '>=' | '+=' ;\r\n"
+        }
+    ]
+}

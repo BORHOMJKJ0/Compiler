@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 from .base_nodes import ASTNode, StatementNode
 
+
 @dataclass
 class TableNameNode(ASTNode):
     name: str

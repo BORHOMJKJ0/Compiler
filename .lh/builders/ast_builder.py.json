@@ -1,0 +1,22 @@
+{
+    "sourceFile": "builders/ast_builder.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1768865994339,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1768866004903,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,8 +34,9 @@\n         stmt = self.statement_builder.build_statement(ctx)\n         if stmt is None:\n             # Fallback to generic node if not handled\n             from dataclasses import dataclass\n+\n             @dataclass\n             class UnknownStatementNode:\n                 type: str\n                 text: str\n"
+                }
+            ],
+            "date": 1768865994339,
+            "name": "Commit-0",
+            "content": "from SQLParserVisitor import SQLParserVisitor as MyParserVisitor\nfrom SQLParser import SQLParser as MyParser\nfrom builders.statement_builder import StatementBuilder\n\n\nclass AstBuilder(MyParserVisitor):\n\n    def __init__(self):\n        self.statement_builder = StatementBuilder()\n\n    def visitSqlScript(self, ctx: MyParser.SqlScriptContext):\n        print('Building AST...')\n        statements = []\n        for batch in ctx.batch():\n            batch_statements = self.visit(batch)\n            if batch_statements:\n                if isinstance(batch_statements, list):\n                    statements.extend(batch_statements)\n                else:\n                    statements.append(batch_statements)\n        return statements\n\n    def visitBatch(self, ctx: MyParser.BatchContext):\n        statements = []\n        for i in range(ctx.getChildCount()):\n            child = ctx.getChild(i)\n            if isinstance(child, MyParser.StatementContext):\n                stmt = self.visit(child)\n                if stmt is not None:\n                    statements.append(stmt)\n        return statements\n\n    def visitStatement(self, ctx: MyParser.StatementContext):\n        stmt = self.statement_builder.build_statement(ctx)\n        if stmt is None:\n            # Fallback to generic node if not handled\n            from dataclasses import dataclass\n            @dataclass\n            class UnknownStatementNode:\n                type: str\n                text: str\n            return UnknownStatementNode(type=\"UnknownStatement\", text=ctx.getText()[:50] + \"...\")\n        return stmt\n\n    # Delegate all other visits to statement builder\n    def visitGoStatement(self, ctx):\n        return self.statement_builder.build_go(ctx)\n\n    def visitCreateTableStatement(self, ctx):\n        return self.statement_builder.build_create_table(ctx)\n\n    def visitAlterTableStatement(self, ctx):\n        return self.statement_builder.build_alter_table(ctx)\n\n    def visitUpdateStatement(self, ctx):\n        return self.statement_builder.build_update(ctx)\n\n    def visitDeleteStatement(self, ctx):\n        return self.statement_builder.build_delete(ctx)\n\n    def visitSelectStatement(self, ctx):\n        return self.statement_builder.build_select(ctx)\n\n    def visitInsertStatement(self, ctx):\n        return self.statement_builder.build_insert(ctx)\n\n    def visitIfStatement(self, ctx):\n        return self.statement_builder.build_if(ctx)\n\n    def visitBlockStatement(self, ctx):\n        return self.statement_builder.build_block(ctx)\n\n    def visitTryCatchStatement(self, ctx):\n        return self.statement_builder.build_try_catch(ctx)\n\n    def visitDeclareStatement(self, ctx):\n        return self.statement_builder.build_declare(ctx)\n\n    def visitSetStatement(self, ctx):\n        return self.statement_builder.build_set(ctx)\n\n    def visitExecStatement(self, ctx):\n        return self.statement_builder.build_exec(ctx)\n"
+        }
+    ]
+}

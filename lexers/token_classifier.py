@@ -5,27 +5,42 @@ class TokenClassifier:
     """Classifies and validates tokens"""
 
     KEYWORDS = {
-        "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "BETWEEN", "BY", "CASE", "CHECK",
-        "COLUMN", "CONSTRAINT", "CREATE", "CROSS", "DATABASE", "DEFAULT", "DELETE",
-        "DESC", "DISTINCT", "DROP", "ELSE", "END", "EXCEPT", "EXISTS", "FALSE", "FETCH",
-        "FOREIGN", "FROM", "FULL", "GROUP", "HAVING", "ILIKE", "IN", "INDEX", "INNER",
-        "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "LEFT", "LIKE", "LIMIT", "NATURAL",
-        "NOT", "NULL", "OFFSET", "ON", "OR", "ORDER", "OUTER", "OVER", "PARTITION",
-        "PRIMARY", "RETURNING", "RIGHT", "ROW", "ROWS", "SELECT", "SET", "TABLE",
-        "THEN", "TOP", "TRUE", "UNION", "UNIQUE", "UNNEST", "UPDATE", "USING", "VALUES",
-        "WHEN", "WHERE", "WINDOW", "WITH", "VIEW", "TRIGGER", "FUNCTION", "PROCEDURE",
-        "BEGIN", "LOOP", "REFERENCES", "GRANT", "REVOKE", "TEMP", "TEMPORARY",
-        "REPLACE", "MATERIALIZED", "ESCAPE", "DECLARE", "KEY", "FIRST", "ONLY",
-        "TRY", "CATCH", "EXEC", "GO", "QUOTENAME", "RAISERROR", "NVARCHAR", "INT",
-        "BIGINT", "MAX", "ERROR_MESSAGE", "ERROR_SEVERITY", "ERROR_STATE",
-        "SCHEMA_NAME", "SCHEMA", "OBJECT", "TYPE", "INFORMATION_SCHEMA",
-        "TABLES", "BASE", "COLUMNS", "KEYS", "PARENT", "CONSTRAINTS",
-        "NCHAR", "VARCHAR", "CHAR", "DATETIME", "DATE", "TIME", "FLOAT", "REAL",
-        "NUMERIC", "MONEY", "SMALLMONEY", "BIT", "TINYINT", "SMALLINT",
-        "CURSOR", "IDENTITY", "SEQUENCES", "OUTPUT", "OPENROWSET", "OPENJSON",
-        "SP_EXECUTESQL", "FOREIGN_KEYS", "PARENT_OBJECT_ID", "EXECPT",
-        "OBJECT_ID", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "TABLE_SCHEMA", "TABLE_NAME",
-        "TABLE_TYPE", "IF", "BULK"
+        "CAST","FALSE", "FETCH", "ILIKE", "LIMIT", "NATURAL", "PARTITION", "OFFSET", "RETURNING", "SELECT", "UNNEST", "WINDOW", "TEMP", "TEMPORARY", "LOOP", "REPLACE", "MATERIALIZED", "FIRST", "TRY", "CATCH", "GO", "QUOTENAME", "NVARCHAR", "ERROR_MESSAGE", "ERROR_SEVERITY", "ERROR_STATE", "SCHEMA_NAME", "SCHEMA", "OBJECT", "TYPE", "INFORMATION_SCHEMA", "TABLES", "BASE", "COLUMNS", "KEYS", "PARENT", "TINYINT", "SEQUENCES", "OUTPUT", "OPENJSON", "SP_EXECUTESQL", "FOREIGN_KEYS", "PARENT_OBJECT_ID", "EXECPT", "OBJECT_ID", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"
+        "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN",
+        "BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED",
+        "COALESCE", "COLLATE", "COLUMN", "COMMIT", "COMPUTE", "CONSTRAINT", "CONTAINS", "CONTAINSTABLE",
+        "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME",
+        "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DBCC", "DEALLOCATE", "DECLARE",
+        "DEFAULT", "DELETE", "DENY", "DESC", "DISK", "DISTINCT", "DISTRIBUTED", "DOUBLE", "DROP", "DUMP",
+        "ELSE", "END", "ERRLVL", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL", "FETCH",
+        "FILE", "FILLFACTOR", "FOR", "FOREIGN", "FREETEXT", "FREETEXTTABLE", "FROM", "FULL", "FUNCTION",
+        "GOTO", "GRANT", "GROUP", "HAVING", "HOLDLOCK", "IDENTITY", "IDENTITY_INSERT", "IDENTITYCOL",
+        "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "KILL", "LEFT",
+        "LIKE", "LINENO", "LOAD", "MERGE", "NATIONAL", "NOCHECK", "NONCLUSTERED", "NOT", "NULL", "NULLIF",
+        "OF", "OFF", "OFFSETS", "ON", "OPEN", "OPENDATASOURCE", "OPENQUERY", "OPENROWSET", "OPENXML",
+        "OPTION", "OR", "ORDER", "OUTER", "OVER", "PERCENT", "PLAN", "PRECISION", "PRIMARY", "PRINT",
+        "PROC", "PROCEDURE", "PUBLIC", "RAISERROR", "READ", "READTEXT", "RECONFIGURE", "REFERENCES",
+        "REPLICATION", "RESTORE", "RESTRICT", "RETURN", "REVERT", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT",
+        "ROWGUIDCOL", "RULE", "SAVE", "SAVEPOINT", "SCHEMA", "SESSION_USER", "SET", "SETUSER", "SHUTDOWN",
+        "SOME", "STATISTICS", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "TEXTSIZE", "THEN", "TO", "TOP",
+        "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "TSEQUAL", "UNION", "UNIQUE", "UNPIVOT", "UPDATE",
+        "UPDATETEXT", "USE", "USER", "VALUES", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE",
+        "WITH", "WRITETEXT", "ABS", "ABSENT", "ACTION", "ADMIN", "AFTER", "AGGREGATE", "ALIAS", "ASSERTION", "AT", "BEFORE",
+        "BINARY", "BIT", "BOOLEAN", "BOTH", "CALL", "CAST", "CHAR", "CHARACTER", "CLASS", "CLOB", "COLUMN_NAME",
+        "CONNECTION", "CONSTRAINTS", "CUBE", "CURRENT_PATH", "DATA", "DAY", "DECIMAL", "DOMAIN",
+        "ELEMENT", "END_EXEC", "EXTRACT", "FREE", "GLOBAL", "HOST", "HOUR", "IDENTIFIER", "INTERVAL",
+        "ISOLATION", "LANGUAGE", "LAST", "LATERAL", "LEADING", "LEVEL", "LOCAL", "LOCK", "MATCH",
+        "MINUTE", "MONTH", "NAMES", "NEW", "NEXT", "ONLY", "PARAMETER", "POWER", "PRECISION", "POSITION",
+        "PROCEDURE_CATALOG", "QUARTER", "REPEATABLE", "RESTRICT", "RLIKE", "ROLLUP", "ROW", "ROWS",
+        "SAVEPOINT", "SECOND", "SESSION", "SCOPE", "SEARCH", "SECTION", "SIMILAR", "SQL", "SQLSTATE",
+        "SQLWARNING", "START", "STATE", "STATEMENT", "SUBSTRING", "SYSTEM", "SYSTEM_USER", "TERMINATE",
+        "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TRUE", "TYPE", "UNBOUNDED", "UNKNOWN", "USAGE", "USING",
+        "VARIABLE", "WHENEVER", "WITHOUT", "YEAR", "ZONE", "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "CEILING", "CHARINDEX", "CONCAT", "COUNT", "COUNT_BIG",
+        "DATEADD", "DATEDIFF", "DATENAME", "DATEPART", "GETDATE", "ISNULL", "LEFT", "LEN", "LOWER",
+        "MAX", "MIN", "POWER", "RANK", "ROW_NUMBER", "RTRIM", "SUBSTRING", "SUM", "UPPER",
+        "BIGINT", "BINARY", "BIT", "CHAR", "DATE", "DATETIME", "DECIMAL", "FLOAT", "IMAGE", "INT",
+        "MONEY", "NCHAR", "NTEXT", "NUMERIC", "REAL", "SMALLINT", "SMALLMONEY", "SQL_VARIANT",
+        "TEXT", "TIME", "TIMESTAMP", "UNIQUEIDENTIFIER", "VARBINARY", "VARCHAR", "XML","VERSION"
     }
 
     def __init__(self):
@@ -65,7 +80,8 @@ class TokenClassifier:
                     paren_count = 0
 
         if paren_count > 0:
-            self.errors.append(f"Error: {paren_count} unclosed opening parenthesis")
+            self.errors.append(
+                f"Error: {paren_count} unclosed opening parenthesis")
 
     def _check_brackets(self, tokens: List[Tuple]):
         """Check for balanced brackets"""
@@ -82,7 +98,8 @@ class TokenClassifier:
                     bracket_count = 0
 
         if bracket_count > 0:
-            self.errors.append(f"Error: {bracket_count} unclosed opening bracket")
+            self.errors.append(
+                f"Error: {bracket_count} unclosed opening bracket")
 
     def _check_identifiers(self, tokens: List[Tuple]):
         """Validate identifiers"""
@@ -140,4 +157,5 @@ class TokenClassifier:
                     i += 1
 
         if comment_depth > 0:
-            self.errors.append(f"Error: {comment_depth} unclosed block comment(s)")
+            self.errors.append(
+                f"Error: {comment_depth} unclosed block comment(s)")

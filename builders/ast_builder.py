@@ -4,7 +4,6 @@ from builders.statement_builder import StatementBuilder
 
 
 class AstBuilder(MyParserVisitor):
-    """Main AST builder that delegates to specialized builders"""
 
     def __init__(self):
         self.statement_builder = StatementBuilder()
@@ -36,6 +35,7 @@ class AstBuilder(MyParserVisitor):
         if stmt is None:
             # Fallback to generic node if not handled
             from dataclasses import dataclass
+
             @dataclass
             class UnknownStatementNode:
                 type: str

@@ -1,8 +1,6 @@
 class ConditionBuilder:
-    """Builder for condition AST nodes"""
 
     def build_condition(self, ctx):
-        """Build a condition node from context"""
         from builders.expression_builder import ExpressionBuilder
         from Ast.condition_nodes import BinaryConditionNode, InConditionNode, IsNotConditionNode, ParenthesizedConditionNode, LogicalConditionNode
         expr_builder = ExpressionBuilder()
@@ -23,7 +21,8 @@ class ConditionBuilder:
 
         elif hasattr(ctx, 'expressionList') and ctx.expressionList():
             left = expr_builder.build_expression(ctx.expression(0))
-            expressionList = expr_builder.build_expression_list(ctx.expressionList())
+            expressionList = expr_builder.build_expression_list(
+                ctx.expressionList())
             keywordIn = "IN"
             keywordNot = "NOT" if "NOT" in ctx.getText().upper() else None
             return InConditionNode(
@@ -55,6 +54,7 @@ class ConditionBuilder:
 
         # Fallback for EXISTS or other conditions
         from dataclasses import dataclass
+
         @dataclass
         class GenericConditionNode:
             type: str

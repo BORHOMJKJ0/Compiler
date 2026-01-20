@@ -235,6 +235,7 @@ def main():
         ('testing.sql', 'Testing file'),
         ('train.sql', 'Training queries'),
         ('train2.sql', 'Advanced training'),
+        ('full_sql_test.sql', 'Full SQL test'),
     ]
 
     results = {}

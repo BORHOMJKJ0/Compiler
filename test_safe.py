@@ -212,7 +212,7 @@ def main():
     print("📁 TESTING FILES")
     print("=" * 80)
 
-    files = ['sqlInput.txt', 'testing.sql', 'train.sql', 'train2.sql']
+    files = ['sqlInput.txt', 'testing.sql', 'train.sql', 'train2.sql', 'full_sql_test.sql']
 
     for filename in files:
         if Path(filename).exists():
