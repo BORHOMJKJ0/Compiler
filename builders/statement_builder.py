@@ -272,7 +272,6 @@ class StatementBuilder:
 
         try_statements = []
         if hasattr(ctx, 'statement'):
-            # Simple approach: collect all statements
             for stmt_ctx in ctx.statement():
                 stmt = self.build_statement(stmt_ctx)
                 if stmt:
