@@ -1,4 +1,9 @@
 class ConditionBuilder:
+    def __init__(self, statement_builder=None):
+        self.statement_builder = statement_builder
+
+    def set_statement_builder(self, statement_builder):
+        self.statement_builder = statement_builder
 
     def build_condition(self, ctx):
         from builders.expression_builder import ExpressionBuilder
@@ -9,7 +14,7 @@ class ConditionBuilder:
             InConditionNode,
             IsNotConditionNode
         )
-        expr_builder = ExpressionBuilder()
+        expr_builder = ExpressionBuilder(self.statement_builder)
 
         if hasattr(ctx, 'expression') and ctx.expression():
             expr_ctx = ctx.expression()
@@ -76,6 +81,7 @@ class ConditionBuilder:
 
         if len(primaries) == 1:
             return expr_builder.build_primary(primaries[0])
+
         conditions = []
         i = 0
 
@@ -91,7 +97,7 @@ class ConditionBuilder:
                         condition = BinaryConditionNode(
                             left=left_expr, operator=op, right=right_expr)
                         conditions.append(condition)
-                        i += 2 
+                        i += 2
                         continue
 
                 elif op in ('AND', 'OR'):

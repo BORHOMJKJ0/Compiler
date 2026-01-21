@@ -2,6 +2,11 @@ from Ast.statement_nodes import TableNameNode
 
 
 class ExpressionBuilder:
+    def __init__(self, statement_builder=None):
+        self.statement_builder = statement_builder
+
+    def set_statement_builder(self, statement_builder):
+        self.statement_builder = statement_builder
 
     def build_expression(self, ctx):
         from Ast.expression_nodes import ParenthesizedExpressionNode, BinaryExpressionNode, VariableExpressionNode, LiteralExpressionNode
@@ -63,9 +68,12 @@ class ExpressionBuilder:
         from Ast.expression_nodes import LiteralExpressionNode, VariableExpressionNode, ColumnReferenceExpressionNode
 
         if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
-            from builders.statement_builder import StatementBuilder
-            stmt_builder = StatementBuilder()
-            return stmt_builder.build_select(ctx.selectStatement())
+            if self.statement_builder:
+                return self.statement_builder.build_select(ctx.selectStatement())
+            else:
+                from builders.statement_builder import StatementBuilder
+                stmt_builder = StatementBuilder()
+                return stmt_builder.build_select(ctx.selectStatement())
 
         if hasattr(ctx, 'literal') and ctx.literal():
             lit = ctx.literal()
@@ -181,7 +189,7 @@ class ExpressionBuilder:
     def build_when_clause(self, ctx):
         from Ast.expression_nodes import WhenClauseNode
         from .condition_builder import ConditionBuilder
-        condition_builder = ConditionBuilder()
+        condition_builder = ConditionBuilder(self.statement_builder)
 
         condition = condition_builder.build_condition(ctx.condition())
         expression = self.build_expression(ctx.expression())

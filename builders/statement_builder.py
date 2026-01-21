@@ -4,8 +4,8 @@ from builders.condition_builder import ConditionBuilder
 
 class StatementBuilder:
     def __init__(self):
-        self.expr_builder = ExpressionBuilder()
-        self.cond_builder = ConditionBuilder()
+        self.expr_builder = ExpressionBuilder(self)
+        self.cond_builder = ConditionBuilder(self)
 
     def build_statement(self, ctx):
         if ctx.getText() == ';':
