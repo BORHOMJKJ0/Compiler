@@ -1,0 +1,8 @@
+Building AST...
+DEBUG build_expression: ctx type = ExpressionContext, hasattr primary = True
+DEBUG: has primary, calling build_primary
+DEBUG build_primary: ctx type = PrimaryContext
+DEBUG: ctx.literal() = None
+DEBUG: ctx.identifier() = [502 490 278 269 234 227 128 121 115], has getText = True
+DEBUG: ident_text = productid
+Error: name 'colref' is not defined

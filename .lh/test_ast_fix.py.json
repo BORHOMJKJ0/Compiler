@@ -1,0 +1,18 @@
+{
+    "sourceFile": "test_ast_fix.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1769009631202,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1769009631202,
+            "name": "Commit-0",
+            "content": "#!/usr/bin/env python\nimport json\nfrom antlr4 import *\nfrom dataclasses import asdict, is_dataclass\n\nfrom BaseLexer import BaseLexer as MyBaseLexer\nfrom SQLParser import SQLParser as MyParser\nfrom builders.ast_builder import AstBuilder\n\n\ndef to_clean_dict(obj):\n    if is_dataclass(obj):\n        result = {\"type\": obj.__class__.__name__}\n        for k, v in asdict(obj).items():\n            cleaned = to_clean_dict(v)\n            if cleaned is not None and cleaned != \"\" and cleaned != []:\n                result[k] = cleaned\n        return result\n    elif isinstance(obj, list):\n        lst = [to_clean_dict(i) for i in obj]\n        return [i for i in lst if i not in (None, \"\", [])]\n    else:\n        return obj\n\n\n# Test with train.sql\nwith open('train.sql', 'r') as f:\n    sql_code = f.read()\n\n# Create lexer and parser\nlexer = MyBaseLexer(InputStream(sql_code))\nstream = CommonTokenStream(lexer)\nparser = MyParser(stream)\n\n# Build AST\nbuilder = AstBuilder()\nast = builder.visitSqlScript(parser.sqlScript())\n\n# Print AST JSON\nprint(\"=== AST JSON ===\")\nast_json = [to_clean_dict(stmt) for stmt in ast]\nprint(json.dumps(ast_json, indent=2))\n\n# Print first SELECT statement specifically\nfor stmt in ast_json:\n    if stmt.get('type') == 'SelectStatementNode':\n        print(\"\\n=== First SELECT Statement Details ===\")\n        print(json.dumps(stmt, indent=2))\n        break\n"
+        }
+    ]
+}

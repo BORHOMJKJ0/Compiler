@@ -1,0 +1,18 @@
+{
+    "sourceFile": "test_ast_simple.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1769012173915,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1769012173915,
+            "name": "Commit-0",
+            "content": "#!/usr/bin/env python\nfrom antlr4 import *\nfrom BaseLexer import BaseLexer as MyBaseLexer\nfrom SQLParser import SQLParser as MyParser\nfrom builders.ast_builder import AstBuilder\nfrom dataclasses import asdict, is_dataclass\nimport json\n\ndef to_clean_dict(obj):\n    if is_dataclass(obj):\n        result = {\"type\": obj.__class__.__name__}\n        for k, v in asdict(obj).items():\n            cleaned = to_clean_dict(v)\n            if cleaned is not None and cleaned != \"\" and cleaned != []:\n                result[k] = cleaned\n        return result\n    elif isinstance(obj, list):\n        lst = [to_clean_dict(i) for i in obj]\n        return [i for i in lst if i not in (None, \"\", [])]\n    else:\n        return obj\n\nsql = 'SELECT productid, productname FROM products WHERE productid = 1;'\nlexer = MyBaseLexer(InputStream(sql))\nstream = CommonTokenStream(lexer)\nparser = MyParser(stream)\ntree = parser.sqlScript()\n\nprint('sqlScript children:', tree.getChildCount())\nfor i in range(tree.getChildCount()):\n    child = tree.getChild(i)\n    print(f'Child {i}: {type(child).__name__}')\n\nprint('\\nBuilding AST...')\nbuilder = AstBuilder()\nast = builder.visitSqlScript(tree)\n\nprint(f'\\nAST length: {len(ast)}')\nprint(f'AST content: {ast}')\n\nif ast:\n    print('\\n=== AST JSON ===')\n    print(json.dumps([to_clean_dict(stmt) for stmt in ast], indent=2))\n"
+        }
+    ]
+}

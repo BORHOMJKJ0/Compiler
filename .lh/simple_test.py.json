@@ -1,0 +1,18 @@
+{
+    "sourceFile": "simple_test.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1769009841826,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1769009841826,
+            "name": "Commit-0",
+            "content": "#!/usr/bin/env python\nimport json\nfrom antlr4 import *\nfrom dataclasses import asdict, is_dataclass\n\nfrom BaseLexer import BaseLexer as MyBaseLexer\nfrom SQLParser import SQLParser as MyParser\nfrom builders.ast_builder import AstBuilder\n\n\ndef to_clean_dict(obj):\n    if is_dataclass(obj):\n        result = {\"type\": obj.__class__.__name__}\n        for k, v in asdict(obj).items():\n            cleaned = to_clean_dict(v)\n            if cleaned is not None and cleaned != \"\" and cleaned != []:\n                result[k] = cleaned\n        return result\n    elif isinstance(obj, list):\n        lst = [to_clean_dict(i) for i in obj]\n        return [i for i in lst if i not in (None, \"\", [])]\n    else:\n        return obj\n\n\n# Test with a simple SQL\nsql_code = \"SELECT productid FROM products;\"\n\n# Create lexer and parser\nlexer = MyBaseLexer(InputStream(sql_code))\nstream = CommonTokenStream(lexer)\nparser = MyParser(stream)\n\n# Build AST\nbuilder = AstBuilder()\ntry:\n    ast = builder.visitSqlScript(parser.sqlScript())\n    print(\"AST result:\", ast)\n    if ast:\n        ast_json = [to_clean_dict(stmt) for stmt in ast]\n        print(json.dumps(ast_json, indent=2))\n    else:\n        print(\"AST is empty\")\nexcept Exception as e:\n    print(f\"Error: {e}\")\n    import traceback\n    traceback.print_exc()\n"
+        }
+    ]
+}

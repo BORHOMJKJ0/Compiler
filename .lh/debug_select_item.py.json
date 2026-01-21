@@ -1,0 +1,18 @@
+{
+    "sourceFile": "debug_select_item.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1769009779145,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1769009779145,
+            "name": "Commit-0",
+            "content": "#!/usr/bin/env python\nimport json\nfrom antlr4 import *\nfrom dataclasses import asdict, is_dataclass\n\nfrom BaseLexer import BaseLexer as MyBaseLexer\nfrom SQLParser import SQLParser as MyParser\n\n\ndef to_clean_dict(obj):\n    if is_dataclass(obj):\n        result = {\"type\": obj.__class__.__name__}\n        for k, v in asdict(obj).items():\n            cleaned = to_clean_dict(v)\n            if cleaned is not None and cleaned != \"\" and cleaned != []:\n                result[k] = cleaned\n        return result\n    elif isinstance(obj, list):\n        lst = [to_clean_dict(i) for i in obj]\n        return [i for i in lst if i not in (None, \"\", [])]\n    else:\n        return obj\n\n\n# Test with a simple SQL\nsql_code = \"SELECT productid, productname, unitprice FROM products WHERE unitprice = (SELECT MAX(unitprice) FROM products);\"\n\n# Create lexer and parser\nlexer = MyBaseLexer(InputStream(sql_code))\nstream = CommonTokenStream(lexer)\nparser = MyParser(stream)\n\n# Get the parse tree\nparse_tree = parser.sqlScript()\n\n# Inspect the structure manually\ndef print_tree(node, indent=0):\n    if node is None:\n        return\n    prefix = \"  \" * indent\n    if isinstance(node, TerminalNode):\n        print(f\"{prefix}TOKEN: {node.getText()}\")\n    else:\n        try:\n            rule_index = node.getRuleIndex()\n            rule_names = parser.ruleNames if hasattr(parser, 'ruleNames') else []\n            rule_name = rule_names[rule_index] if rule_index < len(rule_names) else str(rule_index)\n        except:\n            rule_name = \"?\"\n        \n        print(f\"{prefix}RULE: {rule_name}\")\n        for i in range(node.getChildCount()):\n            print_tree(node.getChild(i), indent + 1)\n\nprint(\"=== PARSE TREE ===\")\nprint_tree(parse_tree)\n\n# Now test the builder\nfrom builders.ast_builder import AstBuilder\n\nbuilder = AstBuilder()\nast = builder.visitSqlScript(parser.sqlScript())\n\nprint(\"\\n=== AST ===\")\nast_json = [to_clean_dict(stmt) for stmt in ast]\nprint(json.dumps(ast_json, indent=2))\n"
+        }
+    ]
+}

@@ -7,7 +7,14 @@ class ExpressionBuilder:
         from Ast.expression_nodes import ParenthesizedExpressionNode, BinaryExpressionNode, VariableExpressionNode, LiteralExpressionNode
 
         if hasattr(ctx, 'primary') and ctx.primary():
-            return self.build_primary(ctx.primary())
+            primary = ctx.primary()
+            if isinstance(primary, list):
+                if len(primary) > 0:
+                    primary = primary[0]
+                else:
+                    primary = None
+            if primary:
+                return self.build_primary(primary)
 
         if hasattr(ctx, 'literal') and ctx.literal():
             return self.build_literal(ctx.literal())
@@ -20,16 +27,20 @@ class ExpressionBuilder:
         elif hasattr(ctx, 'LPAREN') and ctx.LPAREN() and hasattr(ctx, 'RPAREN') and ctx.RPAREN():
             expression = self.build_expression(ctx.expression(0))
             return ParenthesizedExpressionNode(expression=expression)
-        elif hasattr(ctx, 'binaryOp') and ctx.binaryOp() and len(ctx.expression()) == 2:
-            left = self.build_expression(ctx.expression(0))
-            operator = ctx.binaryOp().getText()
-            right = self.build_expression(ctx.expression(1))
-            return BinaryExpressionNode(left=left, operator=operator, right=right)
-        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR() and len(ctx.expression()) == 2:
-            left = self.build_expression(ctx.expression(0))
-            operator = ctx.OPERATOR().getText()
-            right = self.build_expression(ctx.expression(1))
-            return BinaryExpressionNode(left=left, operator=operator, right=right)
+        elif hasattr(ctx, 'binaryOp') and ctx.binaryOp():
+            expr_list = ctx.expression()
+            if expr_list and len(expr_list) == 2:
+                left = self.build_expression(expr_list[0])
+                operator = ctx.binaryOp().getText()
+                right = self.build_expression(expr_list[1])
+                return BinaryExpressionNode(left=left, operator=operator, right=right)
+        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+            expr_list = ctx.expression()
+            if expr_list and len(expr_list) == 2:
+                left = self.build_expression(expr_list[0])
+                operator = ctx.OPERATOR().getText()
+                right = self.build_expression(expr_list[1])
+                return BinaryExpressionNode(left=left, operator=operator, right=right)
         elif hasattr(ctx, 'VARIABLE') and ctx.VARIABLE():
             variableName = ctx.VARIABLE().getText()
             return VariableExpressionNode(variable_name=variableName)
@@ -49,19 +60,57 @@ class ExpressionBuilder:
         return UnknownExpressionNode(type="UnknownExpression", text=ctx.getText()[:50])
 
     def build_primary(self, ctx):
-        from Ast.expression_nodes import LiteralExpressionNode, VariableExpressionNode
+        from Ast.expression_nodes import LiteralExpressionNode, VariableExpressionNode, ColumnReferenceExpressionNode
+
+        if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
+            from builders.statement_builder import StatementBuilder
+            stmt_builder = StatementBuilder()
+            return stmt_builder.build_select(ctx.selectStatement())
 
         if hasattr(ctx, 'literal') and ctx.literal():
-            return self.build_literal(ctx.literal())
-        elif hasattr(ctx, 'columnReference') and ctx.columnReference():
-            return self.build_column_reference(ctx.columnReference())
-        elif hasattr(ctx, 'functionCall') and ctx.functionCall():
-            return self.build_function_call(ctx.functionCall())
-        elif hasattr(ctx, 'VARIABLE') and ctx.VARIABLE():
+            lit = ctx.literal()
+            if isinstance(lit, list) and len(lit) > 0:
+                return self.build_literal(lit[0])
+            else:
+                return self.build_literal(lit)
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            ident_ctx = ctx.identifier()
+            if isinstance(ident_ctx, list) and len(ident_ctx) > 0:
+                ident_text = ident_ctx[0].getText()
+            elif not isinstance(ident_ctx, list):
+                ident_text = ident_ctx.getText()
+            else:
+                ident_text = None
+
+            if ident_text:
+                return ColumnReferenceExpressionNode(table_name=None, column_name=ident_text)
+
+        if hasattr(ctx, 'columnReference') and ctx.columnReference():
+            colref = ctx.columnReference()
+            if isinstance(colref, list) and len(colref) > 0:
+                return self.build_column_reference(colref[0])
+            else:
+                return self.build_column_reference(colref)
+
+        if hasattr(ctx, 'functionCall') and ctx.functionCall():
+            func = ctx.functionCall()
+            if isinstance(func, list) and len(func) > 0:
+                return self.build_function_call(func[0])
+            else:
+                return self.build_function_call(func)
+
+        if hasattr(ctx, 'VARIABLE') and ctx.VARIABLE():
             return VariableExpressionNode(variable_name=ctx.VARIABLE().getText())
-        elif hasattr(ctx, 'expression') and ctx.expression():
-            return self.build_expression(ctx.expression())
-        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR() and ctx.primary():
+
+        if hasattr(ctx, 'expression') and ctx.expression():
+            expr = ctx.expression()
+            if isinstance(expr, list) and len(expr) > 0:
+                return self.build_expression(expr[0])
+            else:
+                return self.build_expression(expr)
+
+        if hasattr(ctx, 'OPERATOR') and ctx.OPERATOR() and ctx.primary():
             op = ctx.OPERATOR().getText()
             inner = self.build_primary(ctx.primary())
             if isinstance(inner, LiteralExpressionNode):

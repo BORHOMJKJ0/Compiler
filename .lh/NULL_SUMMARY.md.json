@@ -1,0 +1,18 @@
+{
+    "sourceFile": "NULL_SUMMARY.md",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1769013131714,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1769013131714,
+            "name": "Commit-0",
+            "content": "# Quick Summary: Null Values Found in AST\n\n## Key Statistics\n- **41 statements parsed**\n- **30 statements (73.2%) contain null values**\n- **237 total null occurrences**\n- **53 unique null field types**\n\n## Critical Issues Found ❌\n\n### 1. UPDATE Statement - Missing Expressions (testing.sql)\n```json\n\"assignmentList[0].expression\": null  ← Assignment value not being parsed\n\"operator\": null  ← Operators not captured (4 instances)\n\"expression\": null  ← General expressions null (4 instances)\n```\n\n### 2. FROM Clause - Missing Information (train.sql)\n```json\n\"fromClause.tableSource[0].keyword\": null  ← FROM keyword not stored (17 instances)\n\"fromClause.tableSource[0].identifier\": null  ← Table alias not captured (17 instances)  \n\"fromClause.tableSource[0].tableName.schema\": null  ← Schema not parsed (16 instances)\n```\n\n### 3. INSERT Statement - Incomplete (train2.sql)\n```json\n\"insertColumns\": null  ← Column list not parsed\n\"insertValues\": null  ← VALUES clause not parsed\n\"selectStatement\": null  ← SELECT in INSERT...SELECT not captured\n```\n\n## Expected/Acceptable Nulls ✓\n\nThese are **NOT bugs** - they represent optional SQL clauses:\n\n```\n- orderByClause: null (15 instances) → Expected, ORDER BY is optional\n- whereClause: null (10 instances) → Expected, WHERE is optional\n- table_name: null in expressions (25+ instances) → Expected for non-qualified columns\n- keywordAs: null (16 instances) → Expected when no alias\n- identifier: null (16 instances) → Expected when no alias\n```\n\n## Breakdown by File\n\n| File | Statements | With Nulls | Critical Issues |\n|------|-----------|-----------|-----------------|\n| train.sql | 25 | 17 (68%) | FROM clause missing data |\n| train2.sql | 2 | 2 (100%) | INSERT incomplete |\n| testing.sql | 14 | 11 (79%) | UPDATE/expressions missing |\n| full_sql_test.sql | 0 | - | Comments only |\n\n## Issues Needing Fixes\n\n### Priority 1 - Data Loss\n- [ ] Fix UPDATE statements - expressions and operators not being captured\n- [ ] Fix INSERT statements - columns and values not being parsed\n\n### Priority 2 - Incomplete Data  \n- [ ] Fix FROM clause - keyword, schema, and alias not stored\n- [ ] Fix expression handling - some return UnknownExpression or null\n\n### Priority 3 - Enhancement\n- [ ] Handle INSERT...SELECT statements\n- [ ] Handle IF EXISTS block statements\n- [ ] Parse qualified column names (schema.table.column)\n"
+        }
+    ]
+}

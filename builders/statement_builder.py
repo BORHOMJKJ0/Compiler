@@ -25,7 +25,7 @@ class StatementBuilder:
 
         elif hasattr(ctx, 'dmlStatement') and ctx.dmlStatement():
             dml = ctx.dmlStatement()
-            if hasattr(dml, 'selectStatement') and ddl.selectStatement() if 'ddl' in locals() else dml.selectStatement():
+            if hasattr(dml, 'selectStatement') and dml.selectStatement():
                 return self.build_select(dml.selectStatement())
             elif hasattr(dml, 'insertStatement') and dml.insertStatement():
                 return self.build_insert(dml.insertStatement())
@@ -154,10 +154,25 @@ class StatementBuilder:
         from Ast.statement_nodes import UpdateStatementNode
         tableName = self.expr_builder.build_table_name(
             ctx.tableName()) if ctx.tableName() else None
-        assignmentList = self.build_assignment_list(ctx.assignments()) if hasattr(
-            ctx, 'assignments') and ctx.assignments() else []
+
+        assignmentList = []
+        if hasattr(ctx, 'assignments') and ctx.assignments():
+            assignmentList = self.build_assignment_list(ctx.assignments())
+        elif hasattr(ctx, 'assignment'):
+            assignments = ctx.assignment()
+            if isinstance(assignments, list):
+                for assignment in assignments:
+                    assnment = self.build_assignment(assignment)
+                    if assnment is not None:
+                        assignmentList.append(assnment)
+            elif assignments:
+                assnment = self.build_assignment(assignments)
+                if assnment is not None:
+                    assignmentList.append(assnment)
+
         whereClause = self.build_where_clause(ctx.whereClause()) if hasattr(
             ctx, 'whereClause') and ctx.whereClause() else None
+
         return UpdateStatementNode(
             keywordUpdate="UPDATE",
             tableName=tableName,
@@ -175,9 +190,13 @@ class StatementBuilder:
 
     def build_assignment(self, ctx):
         from Ast.statement_nodes import AssignmentNode
-        columnName = ctx.columnName().getText()
-        expression = self.expr_builder.build_expression(
-            ctx.expression()) if ctx.expression() else None
+        columnName = ctx.columnName().getText() if hasattr(
+            ctx, 'columnName') and ctx.columnName() else None
+
+        expression = None
+        if hasattr(ctx, 'expression') and ctx.expression():
+            expression = self.expr_builder.build_expression(ctx.expression())
+
         return AssignmentNode(columnName=columnName, expression=expression)
 
     def build_where_clause(self, ctx):
@@ -187,15 +206,92 @@ class StatementBuilder:
         return WhereClauseNode(keywordWhere="WHERE", condition=condition)
 
     def build_select(self, ctx):
-        from Ast.statement_nodes import SelectStatementNode
+        from Ast.statement_nodes import SelectStatementNode, FromClauseNode, OrderByClauseNode
         selectList = self.build_select_list(ctx.selectList())
+
+        fromClause = None
+        if hasattr(ctx, 'tableList') and ctx.tableList():
+            fromClause = self.build_from_clause(ctx.tableList())
+
+        whereClause = None
+        if hasattr(ctx, 'condition') and ctx.condition():
+            conditions = ctx.condition()
+            condition_ctx = conditions[0] if isinstance(
+                conditions, list) and len(conditions) > 0 else conditions
+            if condition_ctx:
+                from Ast.statement_nodes import WhereClauseNode
+                condition = self.cond_builder.build_condition(condition_ctx)
+                whereClause = WhereClauseNode(
+                    keywordWhere="WHERE", condition=condition)
+
+        orderByClause = None
+        if hasattr(ctx, 'orderByList') and ctx.orderByList():
+            orderByClause = self.build_order_by_clause(ctx.orderByList())
+
         return SelectStatementNode(
             keywordSelect="SELECT",
             selectList=selectList,
-            orderByClause=None,
-            whereClause=None,
-            fromClause=None
+            orderByClause=orderByClause,
+            whereClause=whereClause,
+            fromClause=fromClause
         )
+
+    def build_from_clause(self, ctx):
+        from Ast.statement_nodes import FromClauseNode
+        tableSources = []
+
+        if hasattr(ctx, 'tableRef') and ctx.tableRef():
+            table_source = self.build_table_source(ctx.tableRef())
+            if table_source:
+                tableSources.append(table_source)
+
+        if hasattr(ctx, 'joinClause'):
+            for joinClause in ctx.joinClause():
+                if hasattr(joinClause, 'tableRef') and joinClause.tableRef():
+                    table_source = self.build_table_source(
+                        joinClause.tableRef())
+                    if table_source:
+                        tableSources.append(table_source)
+
+        return FromClauseNode(keywordFrom="FROM", tableSource=tableSources)
+
+    def build_table_source(self, ctx):
+        from Ast.statement_nodes import TableSourceNode
+        tableName = self.expr_builder.build_table_name(ctx.tableName())
+        alias = None
+        if hasattr(ctx, 'tableAlias') and ctx.tableAlias():
+            alias = ctx.tableAlias().getText()
+        return TableSourceNode(tableName=tableName, keyword=None, identifier=alias)
+
+    def build_order_by_clause(self, ctx):
+        from Ast.statement_nodes import OrderByClauseNode
+        orderByItems = []
+        for orderByItem in ctx.orderByItem():
+            item = self.build_order_by_item(orderByItem)
+            if item:
+                orderByItems.append(item)
+        return OrderByClauseNode(
+            keywordOrder="ORDER",
+            keywordBy="BY",
+            orderByitem=orderByItems
+        )
+
+    def build_order_by_item(self, ctx):
+        from Ast.statement_nodes import OrderByItemNode
+        expression = None
+        if hasattr(ctx, 'expression') and ctx.expression():
+            expression = self.expr_builder.build_expression(ctx.expression())
+        elif hasattr(ctx, 'columnName') and ctx.columnName():
+            expression = self.expr_builder.build_column_reference(
+                ctx.columnName())
+
+        ascDesc = None
+        if hasattr(ctx, 'ASC') and ctx.ASC():
+            ascDesc = "ASC"
+        elif hasattr(ctx, 'DESC') and ctx.DESC():
+            ascDesc = "DESC"
+
+        return OrderByItemNode(expression=expression)
 
     def build_select_list(self, ctx):
         selectItems = []
@@ -208,25 +304,79 @@ class StatementBuilder:
     def build_select_item(self, ctx):
         from Ast.statement_nodes import SelectItemNode
         expression = None
-        if ctx.expression():
+        keywordAs = None
+        identifier = None
+
+        if hasattr(ctx, 'expression') and ctx.expression():
             expression = self.expr_builder.build_expression(ctx.expression())
+        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+            expression = self.expr_builder.build_expression(ctx)
+
+        if hasattr(ctx, 'AS') and ctx.AS():
+            keywordAs = "AS"
+
+        if hasattr(ctx, 'columnName') and ctx.columnName():
+            identifier = ctx.columnName().getText()
+        elif hasattr(ctx, 'literal') and ctx.literal():
+            identifier = ctx.literal().getText()
+
         return SelectItemNode(
             expression=expression,
-            keywordAs=None,
-            identifier=None
+            keywordAs=keywordAs,
+            identifier=identifier
         )
 
     def build_insert(self, ctx):
-        from Ast.statement_nodes import InsertStatement
+        from Ast.statement_nodes import InsertStatement, InsertColumnsNode, InsertValuesNode
+
         tableName = self.expr_builder.build_table_name(ctx.tableName())
+
+        insertColumns = None
+        if hasattr(ctx, 'columnList') and ctx.columnList():
+            column_list = ctx.columnList()
+            if hasattr(column_list, 'columnName'):
+                column_names = column_list.columnName()
+                if isinstance(column_names, list):
+                    identifiers = [col.getText() for col in column_names]
+                else:
+                    identifiers = [column_names.getText()]
+                insertColumns = InsertColumnsNode(identifier=identifiers)
+
+        insertValues = None
+        selectStatement = None
+        execStatement = None
+
+        if hasattr(ctx, 'valuesClause') and ctx.valuesClause():
+            values_clause = ctx.valuesClause()
+            if hasattr(values_clause, 'expressionList') and values_clause.expressionList():
+                expr_list = values_clause.expressionList()
+                expressions = []
+                if hasattr(expr_list, 'expression'):
+                    expr_contexts = expr_list.expression()
+                    if isinstance(expr_contexts, list):
+                        for expr_ctx in expr_contexts:
+                            expressions.append(
+                                self.expr_builder.build_expression(expr_ctx))
+                    else:
+                        expressions.append(
+                            self.expr_builder.build_expression(expr_contexts))
+                insertValues = InsertValuesNode(
+                    keywordValues="VALUES", expression=expressions)
+
+        if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
+            selectStatement = self.build_select(ctx.selectStatement())
+
+        if hasattr(ctx, 'execStatement') and ctx.execStatement():
+            execStatement = self.build_exec(ctx.execStatement())
+
         return InsertStatement(
             keywordInsert="INSERT",
             tableName=tableName,
             keywordInto="INTO",
-            insertColumns=None,
-            insertValues=None,
-            selectStatement=None,
-            execStatement=None
+            insertColumns=insertColumns,
+            insertValues=insertValues,
+            selectStatement=selectStatement,
+            execStatement=execStatement
         )
 
     def build_if(self, ctx):
@@ -239,7 +389,13 @@ class StatementBuilder:
             selectStatement = self.build_select(ctx.selectStatement())
 
         blockStatement = None
-        if hasattr(ctx, 'blockStatement') and ctx.blockStatement():
+        if hasattr(ctx, 'thenBlock') and ctx.thenBlock():
+            then_block = ctx.thenBlock()
+            if hasattr(then_block, 'blockStatement') and then_block.blockStatement():
+                blockStatement = self.build_block(then_block.blockStatement())
+            elif hasattr(then_block, 'statement') and then_block.statement():
+                blockStatement = self.build_statement(then_block.statement())
+        elif hasattr(ctx, 'blockStatement') and ctx.blockStatement():
             blockStatement = self.build_block(ctx.blockStatement())
         elif hasattr(ctx, 'statement') and ctx.statement():
             blockStatement = self.build_statement(ctx.statement())
