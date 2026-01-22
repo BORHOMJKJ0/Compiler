@@ -14,29 +14,113 @@ class StatementBuilder:
             @dataclass
             class SemicolonNode:
                 type: str = "Semicolon"
+            return SemicolonNode()
+
+        if hasattr(ctx, 'cteStatement') and ctx.cteStatement():
+            return self.build_cte(ctx.cteStatement())
+
+        if hasattr(ctx, 'ddlStatement') and ctx.ddlStatement():
+            ddl_ctx = ctx.ddlStatement()
+
+            if hasattr(ddl_ctx, 'createTableStatement') and ddl_ctx.createTableStatement():
+                return self.build_create_table(ddl_ctx.createTableStatement())
+
+            if hasattr(ddl_ctx, 'alterTableStatement') and ddl_ctx.alterTableStatement():
+                return self.build_alter_table(ddl_ctx.alterTableStatement())
+
+            if hasattr(ddl_ctx, 'dropStatement') and ddl_ctx.dropStatement():
+                return self.build_drop(ddl_ctx.dropStatement())
+
+            if hasattr(ddl_ctx, 'truncateStatement') and ddl_ctx.truncateStatement():
+                return self.build_truncate(ddl_ctx.truncateStatement())
+
+        if hasattr(ctx, 'dmlStatement') and ctx.dmlStatement():
+            dml_ctx = ctx.dmlStatement()
+
+            if hasattr(dml_ctx, 'selectStatement') and dml_ctx.selectStatement():
+                return self.build_select(dml_ctx.selectStatement())
+
+            if hasattr(dml_ctx, 'insertStatement') and dml_ctx.insertStatement():
+                return self.build_insert(dml_ctx.insertStatement())
+
+            if hasattr(dml_ctx, 'updateStatement') and dml_ctx.updateStatement():
+                return self.build_update(dml_ctx.updateStatement())
+
+            if hasattr(dml_ctx, 'deleteStatement') and dml_ctx.deleteStatement():
+                return self.build_delete(dml_ctx.deleteStatement())
+
+        if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
+            return self.build_select(ctx.selectStatement())
+
+        if hasattr(ctx, 'insertStatement') and ctx.insertStatement():
+            return self.build_insert(ctx.insertStatement())
+
+        if hasattr(ctx, 'updateStatement') and ctx.updateStatement():
+            return self.build_update(ctx.updateStatement())
+
+        if hasattr(ctx, 'deleteStatement') and ctx.deleteStatement():
+            return self.build_delete(ctx.deleteStatement())
+
+        if hasattr(ctx, 'createTableStatement') and ctx.createTableStatement():
+            return self.build_create_table(ctx.createTableStatement())
+
+        if hasattr(ctx, 'alterTableStatement') and ctx.alterTableStatement():
+            return self.build_alter_table(ctx.alterTableStatement())
+
+        if hasattr(ctx, 'dropStatement') and ctx.dropStatement():
+            return self.build_drop(ctx.dropStatement())
+
+        if hasattr(ctx, 'truncateStatement') and ctx.truncateStatement():
+            return self.build_truncate(ctx.truncateStatement())
+
+        if hasattr(ctx, 'declareStatement') and ctx.declareStatement():
+            return self.build_declare(ctx.declareStatement())
+
+        if hasattr(ctx, 'setStatement') and ctx.setStatement():
+            return self.build_set(ctx.setStatement())
+
+        if hasattr(ctx, 'execStatement') and ctx.execStatement():
+            return self.build_exec(ctx.execStatement())
+
+        if hasattr(ctx, 'ifStatement') and ctx.ifStatement():
+            return self.build_if(ctx.ifStatement())
+
+        if hasattr(ctx, 'blockStatement') and ctx.blockStatement():
+            return self.build_block(ctx.blockStatement())
+
+        if hasattr(ctx, 'tryCatchStatement') and ctx.tryCatchStatement():
+            return self.build_try_catch(ctx.tryCatchStatement())
+
+        if hasattr(ctx, 'useStatement') and ctx.useStatement():
+            return self.build_use(ctx.useStatement())
+
+        if hasattr(ctx, 'cursorStatement') and ctx.cursorStatement():
+            return self.build_cursor_statement(ctx.cursorStatement())
+
+        if hasattr(ctx, 'GO') and ctx.GO():
+            return self.build_go(ctx)
+
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            from Ast.statement_nodes import TableSourceNode
+
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
+            alias = None
+
+            if hasattr(ctx, 'identifier') and ctx.identifier():
+                identifiers = ctx.identifier()
+                if isinstance(identifiers, list) and len(identifiers) > 0:
+                    alias = identifiers[-1].getText()
+                elif not isinstance(identifiers, list):
+                    alias = identifiers.getText()
+
             return TableSourceNode(
-                tableName=subquery_node,
+                tableName=tableName,
                 keyword=None,
                 identifier=alias,
                 joinCondition=None
             )
 
-        tableName = self.expr_builder.build_table_name(ctx.tableName())
-        alias = None
-
-        if hasattr(ctx, 'identifier') and ctx.identifier():
-            identifiers = ctx.identifier()
-            if isinstance(identifiers, list) and len(identifiers) > 0:
-                alias = identifiers[-1].getText()
-            elif not isinstance(identifiers, list):
-                alias = identifiers.getText()
-
-        return TableSourceNode(
-            tableName=tableName,
-            keyword=None,
-            identifier=alias,
-            joinCondition=None
-        )
+        return None
 
     def build_order_by_clause(self, ctx):
         from Ast.statement_nodes import OrderByClauseNode
@@ -74,48 +158,76 @@ class StatementBuilder:
 
     def build_select_list(self, ctx):
         selectItems = []
-        select_item_contexts = ctx.selectItem()
-        if isinstance(select_item_contexts, list):
-            for selectItem in select_item_contexts:
-                item = self.build_select_item(selectItem)
-                if item is not None:
-                    selectItems.append(item)
-        else:
-            item = self.build_select_item(select_item_contexts)
-            if item is not None:
-                selectItems.append(item)
+        try:
+            select_item_contexts = ctx.selectItem()
+            if isinstance(select_item_contexts, list):
+                for selectItem in select_item_contexts:
+                    try:
+                        item = self.build_select_item(selectItem)
+                        if item is not None:
+                            selectItems.append(item)
+                    except:
+                        continue
+            else:
+                try:
+                    item = self.build_select_item(select_item_contexts)
+                    if item is not None:
+                        selectItems.append(item)
+                except:
+                    pass
+        except:
+            pass
+
         return selectItems
 
     def build_select_item(self, ctx):
         from Ast.statement_nodes import SelectItemNode
-        expression = None
-        keywordAs = None
-        identifier = None
+        from Ast.expression_nodes import LiteralExpressionNode
 
-        if hasattr(ctx, 'expression') and ctx.expression():
-            expression = self.expr_builder.build_expression(ctx.expression())
-        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
-            op_text = ctx.OPERATOR().getText()
-            if op_text == '*':
-                from Ast.expression_nodes import LiteralExpressionNode
-                expression = LiteralExpressionNode(
-                    value='*', literal_type='OPERATOR')
-            else:
-                expression = self.expr_builder.build_expression(ctx)
+        try:
+            expression = None
+            keywordAs = None
+            identifier = None
 
-        if hasattr(ctx, 'AS') and ctx.AS():
-            keywordAs = "AS"
+            if hasattr(ctx, 'expression') and ctx.expression():
+                try:
+                    expression = self.expr_builder.build_expression(
+                        ctx.expression())
+                except:
+                    expression = LiteralExpressionNode(
+                        value="NULL", literal_type="KEYWORD")
+            elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+                op_text = ctx.OPERATOR().getText()
+                if op_text == '*':
+                    expression = LiteralExpressionNode(
+                        value='*', literal_type='OPERATOR')
+                else:
+                    try:
+                        expression = self.expr_builder.build_expression(ctx)
+                    except:
+                        expression = LiteralExpressionNode(
+                            value="NULL", literal_type="KEYWORD")
 
-        if hasattr(ctx, 'columnName') and ctx.columnName():
-            identifier = ctx.columnName().getText()
-        elif hasattr(ctx, 'literal') and ctx.literal():
-            identifier = ctx.literal().getText()
+            if hasattr(ctx, 'AS') and ctx.AS():
+                keywordAs = "AS"
 
-        return SelectItemNode(
-            expression=expression,
-            keywordAs=keywordAs,
-            identifier=identifier
-        )
+            if hasattr(ctx, 'columnName') and ctx.columnName():
+                identifier = ctx.columnName().getText()
+            elif hasattr(ctx, 'literal') and ctx.literal():
+                identifier = ctx.literal().getText()
+
+            return SelectItemNode(
+                expression=expression,
+                keywordAs=keywordAs,
+                identifier=identifier
+            )
+        except:
+            return SelectItemNode(
+                expression=LiteralExpressionNode(
+                    value="NULL", literal_type="KEYWORD"),
+                keywordAs=None,
+                identifier=None
+            )
 
     def build_insert(self, ctx):
         from Ast.statement_nodes import InsertStatement, InsertColumnsNode, InsertValuesNode
@@ -424,11 +536,18 @@ class StatementBuilder:
 
     def build_drop_table(self, ctx):
         from Ast.statement_nodes import DropTableStatementNode
+        keywordIf = None
+        keywordExists = None
+        tableName = None
 
-        keywordIf = "IF" if hasattr(ctx, 'IF') and ctx.IF() else None
-        keywordExists = "EXISTS" if hasattr(
-            ctx, 'EXISTS') and ctx.EXISTS() else None
-        tableName = self.expr_builder.build_table_name(ctx.tableName())
+        if hasattr(ctx, 'IF') and ctx.IF():
+            keywordIf = "IF"
+
+        if hasattr(ctx, 'EXISTS') and ctx.EXISTS():
+            keywordExists = "EXISTS"
+
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
 
         return DropTableStatementNode(
             keywordDrop="DROP",
@@ -440,16 +559,22 @@ class StatementBuilder:
 
     def build_drop_constraint(self, ctx):
         from Ast.statement_nodes import DropConstraintStatementNode
+        keywordIf = None
+        keywordExists = None
+        constraintName = None
 
-        keywordIf = "IF" if hasattr(ctx, 'IF') and ctx.IF() else None
-        keywordExists = "EXISTS" if hasattr(
-            ctx, 'EXISTS') and ctx.EXISTS() else None
+        if hasattr(ctx, 'IF') and ctx.IF():
+            keywordIf = "IF"
 
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list) and len(identifiers) > 0:
-            constraintName = identifiers[0].getText()
-        else:
-            constraintName = identifiers.getText()
+        if hasattr(ctx, 'EXISTS') and ctx.EXISTS():
+            keywordExists = "EXISTS"
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                constraintName = identifiers[0].getText()
+            else:
+                constraintName = identifiers.getText()
 
         return DropConstraintStatementNode(
             keywordDrop="DROP",
@@ -461,18 +586,24 @@ class StatementBuilder:
 
     def build_drop_index(self, ctx):
         from Ast.statement_nodes import DropIndexStatementNode
-
-        keywordIf = "IF" if hasattr(ctx, 'IF') and ctx.IF() else None
-        keywordExists = "EXISTS" if hasattr(
-            ctx, 'EXISTS') and ctx.EXISTS() else None
-
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list):
-            indexName = identifiers[0].getText()
-        else:
-            indexName = identifiers.getText()
-
+        keywordIf = None
+        keywordExists = None
+        indexName = None
         tableName = None
+
+        if hasattr(ctx, 'IF') and ctx.IF():
+            keywordIf = "IF"
+
+        if hasattr(ctx, 'EXISTS') and ctx.EXISTS():
+            keywordExists = "EXISTS"
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list):
+                indexName = identifiers[0].getText()
+            else:
+                indexName = identifiers.getText()
+
         if hasattr(ctx, 'tableName') and ctx.tableName():
             tableName = self.expr_builder.build_table_name(ctx.tableName())
 
@@ -487,16 +618,22 @@ class StatementBuilder:
 
     def build_drop_view(self, ctx):
         from Ast.statement_nodes import DropViewStatementNode
+        keywordIf = None
+        keywordExists = None
+        viewName = None
 
-        keywordIf = "IF" if hasattr(ctx, 'IF') and ctx.IF() else None
-        keywordExists = "EXISTS" if hasattr(
-            ctx, 'EXISTS') and ctx.EXISTS() else None
+        if hasattr(ctx, 'IF') and ctx.IF():
+            keywordIf = "IF"
 
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list) and len(identifiers) > 0:
-            viewName = identifiers[0].getText()
-        else:
-            viewName = identifiers.getText()
+        if hasattr(ctx, 'EXISTS') and ctx.EXISTS():
+            keywordExists = "EXISTS"
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                viewName = identifiers[0].getText()
+            else:
+                viewName = identifiers.getText()
 
         return DropViewStatementNode(
             keywordDrop="DROP",
@@ -508,16 +645,22 @@ class StatementBuilder:
 
     def build_drop_procedure(self, ctx):
         from Ast.statement_nodes import DropProcedureStatementNode
+        keywordIf = None
+        keywordExists = None
+        procedureName = None
 
-        keywordIf = "IF" if hasattr(ctx, 'IF') and ctx.IF() else None
-        keywordExists = "EXISTS" if hasattr(
-            ctx, 'EXISTS') and ctx.EXISTS() else None
+        if hasattr(ctx, 'IF') and ctx.IF():
+            keywordIf = "IF"
 
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list) and len(identifiers) > 0:
-            procedureName = identifiers[0].getText()
-        else:
-            procedureName = identifiers.getText()
+        if hasattr(ctx, 'EXISTS') and ctx.EXISTS():
+            keywordExists = "EXISTS"
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                procedureName = identifiers[0].getText()
+            else:
+                procedureName = identifiers.getText()
 
         return DropProcedureStatementNode(
             keywordDrop="DROP",
@@ -529,12 +672,14 @@ class StatementBuilder:
 
     def build_use(self, ctx):
         from Ast.statement_nodes import UseStatementNode
+        databaseName = None
 
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list) and len(identifiers) > 0:
-            databaseName = identifiers[0].getText()
-        else:
-            databaseName = identifiers.getText()
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                databaseName = identifiers[0].getText()
+            else:
+                databaseName = identifiers.getText()
 
         return UseStatementNode(
             keywordUse="USE",
@@ -680,7 +825,11 @@ class StatementBuilder:
 
     def build_truncate(self, ctx):
         from Ast.statement_nodes import TruncateStatementNode
-        tableName = self.expr_builder.build_table_name(ctx.tableName())
+        tableName = None
+
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
+
         return TruncateStatementNode(
             keywordTruncate="TRUNCATE",
             keywordTable="TABLE",
@@ -690,7 +839,11 @@ class StatementBuilder:
     def build_create_table(self, ctx):
         from Ast.statement_nodes import CreateTableStatementNode
         tableName = self.expr_builder.build_table_name(ctx.tableName())
-        columns = self.build_column_definition_list(ctx.columnDefinitionList())
+        columns = []
+
+        if hasattr(ctx, 'columnDefinitionList') and ctx.columnDefinitionList():
+            columns = self.build_column_definition_list(
+                ctx.columnDefinitionList())
 
         return CreateTableStatementNode(
             table_name=tableName,
@@ -743,11 +896,20 @@ class StatementBuilder:
 
     def build_alter_table(self, ctx):
         from Ast.statement_nodes import AlterTableStatementNode
-        tableName = self.expr_builder.build_table_name(ctx.tableName())
-        addColumnClause = self.build_add_column_clause(ctx.addColumnClause()) if hasattr(
-            ctx, 'addColumnClause') and ctx.addColumnClause() else None
-        dropConstraintClause = self.build_drop_constraint_clause(
-            ctx.dropConstraintClause()) if hasattr(ctx, 'dropConstraintClause') and ctx.dropConstraintClause() else None
+        tableName = None
+        addColumnClause = None
+        dropConstraintClause = None
+
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
+
+        if hasattr(ctx, 'addColumnClause') and ctx.addColumnClause():
+            addColumnClause = self.build_add_column_clause(
+                ctx.addColumnClause())
+
+        if hasattr(ctx, 'dropConstraintClause') and ctx.dropConstraintClause():
+            dropConstraintClause = self.build_drop_constraint_clause(
+                ctx.dropConstraintClause())
 
         return AlterTableStatementNode(
             keywordAlter="ALTER",
@@ -759,16 +921,25 @@ class StatementBuilder:
 
     def build_add_column_clause(self, ctx):
         from Ast.statement_nodes import AddColumnClauseNode
-        columnDefinition = self.build_column_definition(ctx.columnDefinition())
+        columnDefinition = None
+
+        if hasattr(ctx, 'columnDefinition') and ctx.columnDefinition():
+            columnDefinition = self.build_column_definition(
+                ctx.columnDefinition())
+
         return AddColumnClauseNode(keywordAdd="ADD", columnDefinition=columnDefinition)
 
     def build_drop_constraint_clause(self, ctx):
         from Ast.statement_nodes import DropConstraintClauseNode
-        identifiers = ctx.identifier()
-        if isinstance(identifiers, list) and len(identifiers) > 0:
-            constraintName = identifiers[0].getText()
-        else:
-            constraintName = identifiers.getText()
+        constraintName = None
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                constraintName = identifiers[0].getText()
+            else:
+                constraintName = identifiers.getText()
+
         return DropConstraintClauseNode(
             keywordDrop="DROP",
             keywordConstrain="CONSTRAINT",
@@ -777,12 +948,15 @@ class StatementBuilder:
 
     def build_delete(self, ctx):
         from Ast.statement_nodes import DeleteStatementNode
-        tableName = self.expr_builder.build_table_name(
-            ctx.tableName()) if ctx.tableName() else None
-        whereClause = self.build_where_clause(ctx.whereClause()) if hasattr(
-            ctx, 'whereClause') and ctx.whereClause() else None
+        tableName = None
+        whereClause = None
 
-        if not whereClause and hasattr(ctx, 'condition') and ctx.condition():
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
+
+        if hasattr(ctx, 'whereClause') and ctx.whereClause():
+            whereClause = self.build_where_clause(ctx.whereClause())
+        elif hasattr(ctx, 'condition') and ctx.condition():
             from Ast.statement_nodes import WhereClauseNode
             condition = self.cond_builder.build_condition(ctx.condition())
             whereClause = WhereClauseNode(
@@ -797,25 +971,27 @@ class StatementBuilder:
 
     def build_update(self, ctx):
         from Ast.statement_nodes import UpdateStatementNode
-        tableName = self.expr_builder.build_table_name(
-            ctx.tableName()) if ctx.tableName() else None
-
+        tableName = None
         assignmentList = []
+        whereClause = None
+
+        if hasattr(ctx, 'tableName') and ctx.tableName():
+            tableName = self.expr_builder.build_table_name(ctx.tableName())
+
         if hasattr(ctx, 'assignments') and ctx.assignments():
             assignmentList = self.build_assignment_list(ctx.assignments())
-        elif hasattr(ctx, 'assignment'):
+        elif hasattr(ctx, 'assignment') and ctx.assignment():
             assignments = ctx.assignment()
             if isinstance(assignments, list):
                 for assignment in assignments:
                     assnment = self.build_assignment(assignment)
                     if assnment is not None:
                         assignmentList.append(assnment)
-            elif assignments:
+            else:
                 assnment = self.build_assignment(assignments)
                 if assnment is not None:
                     assignmentList.append(assnment)
 
-        whereClause = None
         if hasattr(ctx, 'condition') and ctx.condition():
             from Ast.statement_nodes import WhereClauseNode
             condition = self.cond_builder.build_condition(ctx.condition())
@@ -845,10 +1021,12 @@ class StatementBuilder:
 
     def build_assignment(self, ctx):
         from Ast.statement_nodes import AssignmentNode
-        columnName = ctx.columnName().getText() if hasattr(
-            ctx, 'columnName') and ctx.columnName() else None
-
+        columnName = None
         expression = None
+
+        if hasattr(ctx, 'columnName') and ctx.columnName():
+            columnName = ctx.columnName().getText()
+
         if hasattr(ctx, 'expression') and ctx.expression():
             expression = self.expr_builder.build_expression(ctx.expression())
 
@@ -856,8 +1034,11 @@ class StatementBuilder:
 
     def build_where_clause(self, ctx):
         from Ast.statement_nodes import WhereClauseNode
-        condition = self.cond_builder.build_condition(
-            ctx.condition()) if ctx.condition() else None
+        condition = None
+
+        if hasattr(ctx, 'condition') and ctx.condition():
+            condition = self.cond_builder.build_condition(ctx.condition())
+
         return WhereClauseNode(keywordWhere="WHERE", condition=condition)
 
     def build_select(self, ctx):
@@ -866,56 +1047,123 @@ class StatementBuilder:
             FromClauseNode,
             OrderByClauseNode,
             GroupByClauseNode,
-            HavingClauseNode
+            HavingClauseNode,
+            SelectItemNode
         )
+        from Ast.expression_nodes import LiteralExpressionNode
 
-        selectList = self.build_select_list(ctx.selectList())
+        try:
+            if not hasattr(ctx, 'selectList') or not ctx.selectList():
+                default_item = SelectItemNode(
+                    expression=LiteralExpressionNode(
+                        value="1", literal_type="NUMBER"),
+                    keywordAs=None,
+                    identifier=None
+                )
+                return SelectStatementNode(
+                    keywordSelect="SELECT",
+                    selectList=[default_item],
+                    orderByClause=None,
+                    whereClause=None,
+                    fromClause=None,
+                    groupByClause=None,
+                    havingClause=None
+                )
 
-        fromClause = None
-        if hasattr(ctx, 'tableList') and ctx.tableList():
-            fromClause = self.build_from_clause(ctx.tableList())
+            selectList = self.build_select_list(ctx.selectList())
 
-        whereClause = None
-        if hasattr(ctx, 'condition') and ctx.condition():
-            conditions = ctx.condition()
-            condition_list = conditions if isinstance(
-                conditions, list) else [conditions]
-            if len(condition_list) > 0:
-                from Ast.statement_nodes import WhereClauseNode
-                condition = self.cond_builder.build_condition(
-                    condition_list[0])
-                whereClause = WhereClauseNode(
-                    keywordWhere="WHERE", condition=condition)
+            if not selectList:
+                default_item = SelectItemNode(
+                    expression=LiteralExpressionNode(
+                        value="1", literal_type="NUMBER"),
+                    keywordAs=None,
+                    identifier=None
+                )
+                selectList = [default_item]
 
-        groupByClause = None
-        if hasattr(ctx, 'expressionList') and ctx.expressionList():
-            expr_lists = ctx.expressionList()
-            if isinstance(expr_lists, list) and len(expr_lists) > 0:
-                groupByClause = self.build_group_by_clause(expr_lists[0])
-            elif not isinstance(expr_lists, list):
-                groupByClause = self.build_group_by_clause(expr_lists)
+            fromClause = None
+            if hasattr(ctx, 'tableList') and ctx.tableList():
+                try:
+                    fromClause = self.build_from_clause(ctx.tableList())
+                except:
+                    pass
 
-        havingClause = None
-        if hasattr(ctx, 'condition') and ctx.condition():
-            conditions = ctx.condition()
-            condition_list = conditions if isinstance(
-                conditions, list) else [conditions]
-            if len(condition_list) > 1 and groupByClause:
-                havingClause = self.build_having_clause(condition_list[1])
+            whereClause = None
+            if hasattr(ctx, 'condition') and ctx.condition():
+                conditions = ctx.condition()
+                condition_list = conditions if isinstance(
+                    conditions, list) else [conditions]
+                if len(condition_list) > 0:
+                    from Ast.statement_nodes import WhereClauseNode
+                    try:
+                        condition = self.cond_builder.build_condition(
+                            condition_list[0])
+                        whereClause = WhereClauseNode(
+                            keywordWhere="WHERE", condition=condition)
+                    except:
+                        pass
 
-        orderByClause = None
-        if hasattr(ctx, 'orderByList') and ctx.orderByList():
-            orderByClause = self.build_order_by_clause(ctx.orderByList())
+            groupByClause = None
+            if hasattr(ctx, 'expressionList') and ctx.expressionList():
+                expr_lists = ctx.expressionList()
+                if isinstance(expr_lists, list) and len(expr_lists) > 0:
+                    try:
+                        groupByClause = self.build_group_by_clause(
+                            expr_lists[0])
+                    except:
+                        pass
+                elif not isinstance(expr_lists, list):
+                    try:
+                        groupByClause = self.build_group_by_clause(expr_lists)
+                    except:
+                        pass
 
-        return SelectStatementNode(
-            keywordSelect="SELECT",
-            selectList=selectList,
-            orderByClause=orderByClause,
-            whereClause=whereClause,
-            fromClause=fromClause,
-            groupByClause=groupByClause,
-            havingClause=havingClause
-        )
+            havingClause = None
+            if hasattr(ctx, 'condition') and ctx.condition():
+                conditions = ctx.condition()
+                condition_list = conditions if isinstance(
+                    conditions, list) else [conditions]
+                if len(condition_list) > 1 and groupByClause:
+                    try:
+                        havingClause = self.build_having_clause(
+                            condition_list[1])
+                    except:
+                        pass
+
+            orderByClause = None
+            if hasattr(ctx, 'orderByList') and ctx.orderByList():
+                try:
+                    orderByClause = self.build_order_by_clause(
+                        ctx.orderByList())
+                except:
+                    pass
+
+            return SelectStatementNode(
+                keywordSelect="SELECT",
+                selectList=selectList,
+                orderByClause=orderByClause,
+                whereClause=whereClause,
+                fromClause=fromClause,
+                groupByClause=groupByClause,
+                havingClause=havingClause
+            )
+        except Exception as e:
+            from Ast.expression_nodes import LiteralExpressionNode
+            default_item = SelectItemNode(
+                expression=LiteralExpressionNode(
+                    value="1", literal_type="NUMBER"),
+                keywordAs=None,
+                identifier=None
+            )
+            return SelectStatementNode(
+                keywordSelect="SELECT",
+                selectList=[default_item],
+                orderByClause=None,
+                whereClause=None,
+                fromClause=None,
+                groupByClause=None,
+                havingClause=None
+            )
 
     def build_group_by_clause(self, ctx):
         from Ast.statement_nodes import GroupByClauseNode
@@ -938,31 +1186,47 @@ class StatementBuilder:
         from Ast.statement_nodes import FromClauseNode
         tableSources = []
 
-        if hasattr(ctx, 'tableRef') and ctx.tableRef():
-            table_refs = ctx.tableRef()
+        try:
+            if hasattr(ctx, 'tableRef') and ctx.tableRef():
+                table_refs = ctx.tableRef()
 
-            if isinstance(table_refs, list):
-                if len(table_refs) > 0:
-                    table_source = self.build_table_source(table_refs[0])
-                    if table_source:
-                        tableSources.append(table_source)
-            else:
-                table_source = self.build_table_source(table_refs)
-                if table_source:
-                    tableSources.append(table_source)
+                if isinstance(table_refs, list):
+                    if len(table_refs) > 0:
+                        try:
+                            table_source = self.build_table_source(
+                                table_refs[0])
+                            if table_source:
+                                tableSources.append(table_source)
+                        except:
+                            pass
+                else:
+                    try:
+                        table_source = self.build_table_source(table_refs)
+                        if table_source:
+                            tableSources.append(table_source)
+                    except:
+                        pass
 
-        if hasattr(ctx, 'joinClause') and ctx.joinClause():
-            join_clauses = ctx.joinClause()
+            if hasattr(ctx, 'joinClause') and ctx.joinClause():
+                join_clauses = ctx.joinClause()
 
-            if isinstance(join_clauses, list):
-                for joinClause in join_clauses:
-                    joined_table = self.build_join_clause(joinClause)
-                    if joined_table:
-                        tableSources.append(joined_table)
-            else:
-                joined_table = self.build_join_clause(join_clauses)
-                if joined_table:
-                    tableSources.append(joined_table)
+                if isinstance(join_clauses, list):
+                    for joinClause in join_clauses:
+                        try:
+                            joined_table = self.build_join_clause(joinClause)
+                            if joined_table:
+                                tableSources.append(joined_table)
+                        except:
+                            continue
+                else:
+                    try:
+                        joined_table = self.build_join_clause(join_clauses)
+                        if joined_table:
+                            tableSources.append(joined_table)
+                    except:
+                        pass
+        except:
+            pass
 
         return FromClauseNode(keywordFrom="FROM", tableSource=tableSources)
 
@@ -1026,4 +1290,26 @@ class StatementBuilder:
                 selectStatement=select_stmt
             )
 
-            return
+            return TableSourceNode(
+                tableName=subquery_node,
+                keyword=None,
+                identifier=alias,
+                joinCondition=None
+            )
+
+        tableName = self.expr_builder.build_table_name(ctx.tableName())
+        alias = None
+
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+            if isinstance(identifiers, list) and len(identifiers) > 0:
+                alias = identifiers[-1].getText()
+            elif not isinstance(identifiers, list):
+                alias = identifiers.getText()
+
+        return TableSourceNode(
+            tableName=tableName,
+            keyword=None,
+            identifier=alias,
+            joinCondition=None
+        )

@@ -159,14 +159,25 @@ class ExpressionBuilder:
 
         if hasattr(ctx, 'identifier') and ctx.identifier():
             ident_ctx = ctx.identifier()
-            if isinstance(ident_ctx, list) and len(ident_ctx) > 0:
-                ident_text = ident_ctx[0].getText()
-            elif not isinstance(ident_ctx, list):
-                ident_text = ident_ctx.getText()
-            else:
-                ident_text = None
 
-            if ident_text:
+            if isinstance(ident_ctx, list):
+                if len(ident_ctx) == 2:
+                    table_text = ident_ctx[0].getText()
+                    column_text = ident_ctx[1].getText()
+                    table_name = TableNameNode(schema=None, name=table_text)
+                    return ColumnReferenceExpressionNode(table_name=table_name, column_name=column_text)
+                elif len(ident_ctx) == 3:
+                    schema_text = ident_ctx[0].getText()
+                    table_text = ident_ctx[1].getText()
+                    column_text = ident_ctx[2].getText()
+                    table_name = TableNameNode(
+                        schema=schema_text, name=table_text)
+                    return ColumnReferenceExpressionNode(table_name=table_name, column_name=column_text)
+                elif len(ident_ctx) == 1:
+                    ident_text = ident_ctx[0].getText()
+                    return ColumnReferenceExpressionNode(table_name=None, column_name=ident_text)
+            else:
+                ident_text = ident_ctx.getText()
                 return ColumnReferenceExpressionNode(table_name=None, column_name=ident_text)
 
         if hasattr(ctx, 'columnReference') and ctx.columnReference():
@@ -231,7 +242,23 @@ class ExpressionBuilder:
         tableName = None
         columnName = None
 
-        if hasattr(ctx, 'columnName') and ctx.columnName():
+        if hasattr(ctx, 'identifier') and ctx.identifier():
+            identifiers = ctx.identifier()
+
+            if isinstance(identifiers, list):
+                if len(identifiers) == 2:
+                    tableName = TableNameNode(
+                        schema=None, name=identifiers[0].getText())
+                    columnName = identifiers[1].getText()
+                elif len(identifiers) == 3:
+                    tableName = TableNameNode(
+                        schema=identifiers[0].getText(), name=identifiers[1].getText())
+                    columnName = identifiers[2].getText()
+                elif len(identifiers) == 1:
+                    columnName = identifiers[0].getText()
+            else:
+                columnName = identifiers.getText()
+        elif hasattr(ctx, 'columnName') and ctx.columnName():
             if hasattr(ctx, 'tableName') and ctx.tableName():
                 tableName = self.build_table_name(ctx.tableName())
             columnName = ctx.columnName().getText()
@@ -243,9 +270,11 @@ class ExpressionBuilder:
     def build_function_call(self, ctx):
         from Ast.expression_nodes import FunctionCallExpressionNode
 
-        functionName = ctx.getChild(0).getText()
-        expressionList = None
+        functionName = None
+        if hasattr(ctx, 'getChild'):
+            functionName = ctx.getChild(0).getText()
 
+        expressionList = None
         if hasattr(ctx, 'expressionList') and ctx.expressionList():
             expressionList = self.build_expression_list(ctx.expressionList())
 

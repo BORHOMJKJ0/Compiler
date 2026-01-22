@@ -78,7 +78,6 @@ class ErrorHandler:
                 print(f"{info}")
 
     def print_all(self):
-        """Print all messages"""
         self.print_errors()
         self.print_warnings()
         self.print_info()

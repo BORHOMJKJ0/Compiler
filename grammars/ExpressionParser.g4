@@ -7,6 +7,7 @@ primary
     : literal
     | functionCall
     | caseExpression
+    | columnReference    
     | identifier
     | VARIABLE
     | LPAREN (selectStatement | expression | expressionList) RPAREN
@@ -23,7 +24,8 @@ binaryOp
     | LIKE
     | BETWEEN
     ;
-
+    
+columnReference: identifier (DOT identifier)+;
 expressionList: expression (COMMA expression)*;
 
 literal

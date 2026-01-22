@@ -299,6 +299,11 @@ class SQLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by SQLParser#columnReference.
+    def visitColumnReference(self, ctx:SQLParser.ColumnReferenceContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by SQLParser#expressionList.
     def visitExpressionList(self, ctx:SQLParser.ExpressionListContext):
         return self.visitChildren(ctx)

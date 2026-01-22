@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1768891195297,
@@ -12,6 +12,10 @@
                 {
                     "date": 1768891219135,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n     USER_KEY INT NULL,\r\n     ACTION_DATETIME DATE NULL,\r\n     SOURCE NVARCHAR(20) NULL,\r\n     [ACTION] NVARCHAR(20) NULL,\r\n-    [DESC NVARCHAR(100) NULL,\r\n+    [DESC] NVARCHAR(100) NULL,\r\n     CONSTRAINT PK_TRACKING\r\n         PRIMARY KEY CLUSTERED (TRACKING_KEY)\r\n )\r\n \r\n"
+                },
+                {
+                    "date": 1769064696116,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,27 +13,10 @@\n     CONSTRAINT PK_TRACKING\r\n         PRIMARY KEY CLUSTERED (TRACKING_KEY)\r\n )\r\n \r\n-INSERT INTO TRACKING (\r\n-        [TRACKING_KEY],\r\n-        [C_KEY],\r\n-        [USER_KEY],\r\n-        [ACTION_DATETIME],\r\n-        [SOURCE],\r\n-        [ACTION],\r\n-        [DESC]\r\n-    )\r\n-    VALUES (\r\n-        -1,\r\n-        -1,   \r\n-        -1,  \r\n-        NULL,\r\n-        '-',\r\n-        'OTHER',\r\n-        '-' \r\n-    )\r\n \r\n+\r\n END\r\n GO\r\n \r\n \r\n"
                 }
             ],
             "date": 1768891195297,

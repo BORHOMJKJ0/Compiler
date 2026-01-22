@@ -24,6 +24,11 @@ class ExpressionParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExpressionParser#columnReference.
+    def visitColumnReference(self, ctx:ExpressionParser.ColumnReferenceContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExpressionParser#expressionList.
     def visitExpressionList(self, ctx:ExpressionParser.ExpressionListContext):
         return self.visitChildren(ctx)

@@ -530,6 +530,15 @@ class SQLParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by SQLParser#columnReference.
+    def enterColumnReference(self, ctx:SQLParser.ColumnReferenceContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#columnReference.
+    def exitColumnReference(self, ctx:SQLParser.ColumnReferenceContext):
+        pass
+
+
     # Enter a parse tree produced by SQLParser#expressionList.
     def enterExpressionList(self, ctx:SQLParser.ExpressionListContext):
         pass

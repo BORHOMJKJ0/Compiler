@@ -35,6 +35,15 @@ class ExpressionParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExpressionParser#columnReference.
+    def enterColumnReference(self, ctx:ExpressionParser.ColumnReferenceContext):
+        pass
+
+    # Exit a parse tree produced by ExpressionParser#columnReference.
+    def exitColumnReference(self, ctx:ExpressionParser.ColumnReferenceContext):
+        pass
+
+
     # Enter a parse tree produced by ExpressionParser#expressionList.
     def enterExpressionList(self, ctx:ExpressionParser.ExpressionListContext):
         pass

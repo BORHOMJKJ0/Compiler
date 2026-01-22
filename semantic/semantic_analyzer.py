@@ -428,7 +428,7 @@ class SemanticAnalyzer:
             report.append("")
 
         if not self.errors:
-            report.append("✓ No semantic errors found!")
+            report.append("No semantic errors found!")
 
         report.append("=" * 80)
 

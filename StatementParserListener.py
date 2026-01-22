@@ -521,6 +521,15 @@ class StatementParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by StatementParser#columnReference.
+    def enterColumnReference(self, ctx:StatementParser.ColumnReferenceContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#columnReference.
+    def exitColumnReference(self, ctx:StatementParser.ColumnReferenceContext):
+        pass
+
+
     # Enter a parse tree produced by StatementParser#expressionList.
     def enterExpressionList(self, ctx:StatementParser.ExpressionListContext):
         pass

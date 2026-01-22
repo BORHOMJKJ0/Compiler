@@ -1,10 +1,8 @@
-# Generate ANTLR parser and lexer
 antlr4 -Dlanguage=Python3 -visitor grammars/BaseLexer.g4
 antlr4 -Dlanguage=Python3 -visitor grammars/ExpressionParser.g4
 antlr4 -Dlanguage=Python3 -visitor grammars/StatementParser.g4
 antlr4 -Dlanguage=Python3 -visitor grammars/SQLParser.g4
 
-# Run tests
 python testLexer.py
 python token_viewer.py
 python main.py
