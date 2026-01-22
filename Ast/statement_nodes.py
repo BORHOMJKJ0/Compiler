@@ -104,22 +104,6 @@ class InsertColumnsNode(ASTNode):
 
 
 @dataclass
-class InsertValuesNode(ASTNode):
-    from .expression_nodes import ExpressionNode
-    keywordValues: str
-    expression: List['ExpressionNode']
-
-
-@dataclass
-class SelectStatementNode(StatementNode):
-    keywordSelect: str
-    selectList: List['SelectItemNode']
-    orderByClause: Optional['OrderByClauseNode'] = None
-    whereClause: Optional[WhereClauseNode] = None
-    fromClause: Optional['FromClauseNode'] = None
-
-
-@dataclass
 class SelectItemNode(ASTNode):
     from .expression_nodes import ExpressionNode
     expression: Optional['ExpressionNode']
@@ -136,32 +120,9 @@ class OrderByClauseNode(ASTNode):
 
 
 @dataclass
-class OrderByItemNode(ASTNode):
-    from .expression_nodes import ExpressionNode
-    expression: Optional['ExpressionNode'] = None
-    identifier: Optional[str] = None
-
-
-@dataclass
 class FromClauseNode(ASTNode):
     keywordFrom: str
     tableSource: List['TableSourceNode']
-
-
-@dataclass
-class TableSourceNode(ASTNode):
-    tableName: TableNameNode
-    keyword: Optional[str] = None
-    identifier: Optional[str] = None
-
-
-@dataclass
-class IfStatementNode(StatementNode):
-    keywordIf: str
-    selectStatement: SelectStatementNode
-    blockStatement: 'BlockStatementNode'
-    keywordNot: Optional[str] = None
-    keywordEXISTS: Optional[str] = None
 
 
 @dataclass
@@ -210,3 +171,178 @@ class execStatementNode(StatementNode):
     keywordExec: str
     identifier: str
     expressionList: Optional[List['ExpressionNode']] = None
+
+
+@dataclass
+class TruncateStatementNode(StatementNode):
+    keywordTruncate: str
+    keywordTable: str
+    tableName: 'TableNameNode'
+
+
+@dataclass
+class GroupByClauseNode(ASTNode):
+    from .expression_nodes import ExpressionNode
+    keywordGroup: str
+    keywordBy: str
+    expressions: List['ExpressionNode']
+
+
+@dataclass
+class HavingClauseNode(ASTNode):
+    from .condition_nodes import ConditionNode
+    keywordHaving: str
+    condition: 'ConditionNode'
+
+
+@dataclass
+class SelectStatementNode(StatementNode):
+    keywordSelect: str
+    selectList: List['SelectItemNode']
+    orderByClause: Optional['OrderByClauseNode'] = None
+    whereClause: Optional['WhereClauseNode'] = None
+    fromClause: Optional['FromClauseNode'] = None
+    groupByClause: Optional['GroupByClauseNode'] = None
+    havingClause: Optional['HavingClauseNode'] = None
+
+
+@dataclass
+class OrderByItemNode(ASTNode):
+    from .expression_nodes import ExpressionNode
+    expression: Optional['ExpressionNode'] = None
+    identifier: Optional[str] = None
+    ascDesc: Optional[str] = None
+
+
+@dataclass
+class TableSourceNode(ASTNode):
+    from .condition_nodes import ConditionNode
+    tableName: 'TableNameNode'
+    keyword: Optional[str] = None
+    identifier: Optional[str] = None
+    joinCondition: Optional['ConditionNode'] = None
+
+
+@dataclass
+class InsertValuesNode(ASTNode):
+    from .expression_nodes import ExpressionNode
+    keywordValues: str
+    valueSets: List[List['ExpressionNode']]
+
+
+@dataclass
+class IfStatementNode(StatementNode):
+    from .condition_nodes import ConditionNode
+    keywordIf: str
+    selectStatement: Optional['SelectStatementNode'] = None
+    condition: Optional['ConditionNode'] = None
+    blockStatement: Optional['BlockStatementNode'] = None
+    elseStatement: Optional['BlockStatementNode'] = None
+    keywordNot: Optional[str] = None
+    keywordEXISTS: Optional[str] = None
+
+
+@dataclass
+class CTEDefinitionNode(ASTNode):
+    name: str
+    columns: Optional[List[str]] = None
+    selectStatement: 'SelectStatementNode' = None
+
+
+@dataclass
+class CTEStatementNode(StatementNode):
+    keywordWith: str
+    cteList: List[CTEDefinitionNode]
+    statement: StatementNode
+
+
+@dataclass
+class DropTableStatementNode(StatementNode):
+    keywordDrop: str
+    keywordTable: str
+    keywordIf: Optional[str] = None
+    keywordExists: Optional[str] = None
+    tableName: 'TableNameNode' = None
+
+
+@dataclass
+class DropConstraintStatementNode(StatementNode):
+    keywordDrop: str
+    keywordConstraint: str
+    constraintName: str
+    keywordIf: Optional[str] = None
+    keywordExists: Optional[str] = None
+
+
+@dataclass
+class DropIndexStatementNode(StatementNode):
+    keywordDrop: str
+    keywordIndex: str
+    indexName: str
+    keywordIf: Optional[str] = None
+    keywordExists: Optional[str] = None
+    tableName: Optional['TableNameNode'] = None
+
+
+@dataclass
+class DropViewStatementNode(StatementNode):
+    keywordDrop: str
+    keywordView: str
+    viewName: str
+    keywordIf: Optional[str] = None
+    keywordExists: Optional[str] = None
+
+
+@dataclass
+class DropProcedureStatementNode(StatementNode):
+    keywordDrop: str
+    keywordProcedure: str
+    procedureName: str
+    keywordIf: Optional[str] = None
+    keywordExists: Optional[str] = None
+
+
+@dataclass
+class UseStatementNode(StatementNode):
+    keywordUse: str
+    databaseName: str
+
+
+@dataclass
+class DeclareCursorStatementNode(StatementNode):
+    keywordDeclare: str
+    cursorName: str
+    keywordCursor: str
+    keywordFor: str
+    options: Optional[List[str]] = None
+    selectStatement: 'SelectStatementNode' = None
+
+
+@dataclass
+class OpenCursorStatementNode(StatementNode):
+    keywordOpen: str
+    cursorName: str
+
+
+@dataclass
+class FetchCursorStatementNode(StatementNode):
+    from .expression_nodes import ExpressionNode
+    keywordFetch: str
+    keywordFrom: str
+    cursorName: str
+    fetchType: Optional[str] = None
+    expression: Optional['ExpressionNode'] = None
+    keywordInto: Optional[str] = None
+    variables: Optional[List[str]] = None
+
+
+@dataclass
+class CloseCursorStatementNode(StatementNode):
+    keywordClose: str
+    cursorName: str
+
+
+@dataclass
+class DeallocateCursorStatementNode(StatementNode):
+    keywordDeallocate: str
+    cursorName: str

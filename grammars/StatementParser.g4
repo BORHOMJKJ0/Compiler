@@ -13,10 +13,12 @@ statement
     | execStatement
     | truncateStatement
     | blockStatement
+    | cursorStatement
+    | useStatement
     | SEMI
     ;
 
-ddlStatement: createTableStatement | alterTableStatement;
+ddlStatement: createTableStatement | alterTableStatement | dropStatement;
 
 createTableStatement
     : CREATE TABLE tableName LPAREN columnDefinitionList RPAREN
@@ -26,11 +28,11 @@ columnDefinitionList: columnDefinition (COMMA columnDefinition)*;
 
 columnDefinition: columnName dataType constraint*;
 
-dataType: (INT | NVARCHAR | BIGINT | DATE | identifier) typeSize?;
+dataType: (INT | NVARCHAR | BIGINT | DATE | DATETIME | VARCHAR | NCHAR | CHAR | BIT | DECIMAL | FLOAT | REAL | MONEY | SMALLMONEY | TEXT | NTEXT | TIME | TIMESTAMP | UNIQUEIDENTIFIER | SQL_VARIANT | XML | SMALLINT | TINYINT | NUMERIC | identifier) typeSize?;
 
 typeSize: LPAREN (NUMBER | identifier) (COMMA NUMBER)* RPAREN ;
 
-constraint: (NOT NULL | NULL | PRIMARY KEY (CLUSTERED | NONCLUSTERED)? (LPAREN columnList RPAREN)?  | DEFAULT expression| identifier)+;
+constraint: (NOT NULL | NULL | PRIMARY KEY (CLUSTERED | NONCLUSTERED)? (LPAREN columnList RPAREN)?  | DEFAULT expression| UNIQUE | FOREIGN KEY | CHECK | identifier)+;
 
 alterTableStatement
     : ALTER TABLE tableName (addColumnClause | dropConstraintClause)
@@ -40,9 +42,30 @@ addColumnClause: ADD columnDefinition;
 
 dropConstraintClause: DROP (CONSTRAINT | COLUMN) identifier;
 
+dropStatement
+    : DROP TABLE (IF EXISTS)? tableName
+    | DROP CONSTRAINT (IF EXISTS)? identifier
+    | DROP INDEX (IF EXISTS)? identifier (ON tableName)?
+    | DROP VIEW (IF EXISTS)? identifier
+    | DROP PROCEDURE (IF EXISTS)? identifier
+    ;
+
 truncateStatement: TRUNCATE TABLE tableName;
 
-dmlStatement: selectStatement | insertStatement | updateStatement | deleteStatement;
+useStatement: USE identifier;
+
+dmlStatement: cteStatement | selectStatement | insertStatement | updateStatement | deleteStatement;
+
+cteStatement
+    : WITH cteList selectStatement
+    | WITH cteList insertStatement
+    | WITH cteList updateStatement
+    | WITH cteList deleteStatement
+    ;
+
+cteList: cteDefinition (COMMA cteDefinition)*;
+
+cteDefinition: identifier (LPAREN columnList RPAREN)? AS LPAREN selectStatement RPAREN;
 
 selectStatement
     : SELECT selectList (FROM tableList)? (WHERE condition)? (GROUP BY expressionList)? (HAVING condition)? (ORDER BY orderByList)?
@@ -54,7 +77,7 @@ orderByItem: expression (ASC | DESC)?;
 
 selectList: selectItem (COMMA selectItem)*;
 
-selectItem: (OPERATOR | expression) (AS? (columnName | literal))?;
+selectItem: (OPERATOR | expression) (AS? (columnName | literal | identifier))?;
 
 tableList: tableRef (joinClause)*;
 
@@ -107,3 +130,42 @@ declareStatement: DECLARE VARIABLE dataType (OPERATOR expression)?;
 setStatement: SET (VARIABLE | columnName) OPERATOR expression;
 
 execStatement: EXEC (identifier | SP_EXECUTESQL) expressionList?;
+
+cursorStatement
+    : declareCursorStatement
+    | openCursorStatement
+    | fetchCursorStatement
+    | closeCursorStatement
+    | deallocateCursorStatement
+    ;
+
+declareCursorStatement
+    : DECLARE identifier CURSOR (cursorOptions)* FOR selectStatement
+    ;
+
+cursorOptions
+    : LOCAL
+    | GLOBAL
+    | FORWARD_ONLY
+    | SCROLL
+    | STATIC
+    | KEYSET
+    | DYNAMIC
+    | FAST_FORWARD
+    | READ_ONLY
+    | SCROLL_LOCKS
+    | OPTIMISTIC
+    ;
+
+openCursorStatement: OPEN identifier;
+
+fetchCursorStatement
+    : FETCH (NEXT | PRIOR | FIRST | LAST | ABSOLUTE expression | RELATIVE expression)? 
+      FROM identifier (INTO variableList)?
+    ;
+
+variableList: VARIABLE (COMMA VARIABLE)*;
+
+closeCursorStatement: CLOSE identifier;
+
+deallocateCursorStatement: DEALLOCATE identifier;

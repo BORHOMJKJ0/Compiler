@@ -3,11 +3,23 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1768865987533,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1769040661623,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,15 @@\n from dataclasses import dataclass\r\n from typing import List, Optional\r\n from .base_nodes import ASTNode, StatementNode\r\n \r\n-\r\n @dataclass\r\n+class TableSourceNode(ASTNode):\r\n+    tableName: 'TableNameNode'\r\n+    keyword: Optional[str] = None  # Stores JOIN type: INNER, LEFT, LEFTOUTER, RIGHT, RIGHTOUTER, FULL, FULLOUTER\r\n+    identifier: Optional[str] = None  # Stores table alias\r\n+    joinCondition: Optional['ConditionNode'] = None\r\n+@dataclass\r\n class TableNameNode(ASTNode):\r\n     name: str\r\n     schema: Optional[str] = None\r\n \r\n"
+                },
+                {
+                    "date": 1769040673795,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,10 @@\n from dataclasses import dataclass\r\n from typing import List, Optional\r\n from .base_nodes import ASTNode, StatementNode\r\n \r\n+\r\n @dataclass\r\n-class TableSourceNode(ASTNode):\r\n-    tableName: 'TableNameNode'\r\n-    keyword: Optional[str] = None  # Stores JOIN type: INNER, LEFT, LEFTOUTER, RIGHT, RIGHTOUTER, FULL, FULLOUTER\r\n-    identifier: Optional[str] = None  # Stores table alias\r\n-    joinCondition: Optional['ConditionNode'] = None\r\n-    \r\n-@dataclass\r\n class TableNameNode(ASTNode):\r\n     name: str\r\n     schema: Optional[str] = None\r\n \r\n"
+                },
+                {
+                    "date": 1769040688184,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -150,9 +150,9 @@\n \r\n @dataclass\r\n class TableSourceNode(ASTNode):\r\n     tableName: 'TableNameNode'\r\n-    keyword: Optional[str] = None  # Stores JOIN type: INNER, LEFT, LEFTOUTER, RIGHT, RIGHTOUTER, FULL, FULLOUTER\r\n+    keyword: Optional[str] = None\r\n     identifier: Optional[str] = None \r\n     joinCondition: Optional['ConditionNode'] = None\r\n \r\n \r\n"
                 }
             ],
             "date": 1768865987533,

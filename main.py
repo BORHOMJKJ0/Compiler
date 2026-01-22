@@ -147,7 +147,7 @@ def process_file(file_path, logger):
 
     custom_lexer = BaseLexer(sql)
     processed_sql = custom_lexer.processed_text
-    
+
     lexer = MyBaseLexer(InputStream(processed_sql))
     token_stream = CommonTokenStream(lexer)
     token_stream.fill()

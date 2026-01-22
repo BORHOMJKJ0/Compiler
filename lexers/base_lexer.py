@@ -7,17 +7,18 @@ class BaseLexer:
 
     def __init__(self, input_text: str):
         self.original_text = input_text
-        self.processed_text = self._preprocess_comments(input_text)
+        self.processed_text = self._preprocess_text(input_text)
         self.input_stream = InputStream(self.processed_text)
         self.lexer = GeneratedLexer(self.input_stream)
         self._tokens = None
 
-    def _preprocess_comments(self, text: str) -> str:
+    def _preprocess_text(self, text: str) -> str:
         result = list(text)
         i = 0
         n = len(text)
+
         while i < n:
-            if text[i:i+2] == '/*':
+            if i < n - 1 and text[i:i+2] == '/*':
                 start = i
                 depth = 1
                 i += 2
@@ -34,8 +35,28 @@ class BaseLexer:
                 for j in range(start, min(i, n)):
                     if result[j] not in ('\n', '\r'):
                         result[j] = ' '
+
+            elif text[i] == "'":
+                string_start = i
+                i += 1
+                while i < n:
+                    if text[i] == "'":
+                        if i + 1 < n and text[i + 1] == "'":
+                            i += 2
+                            continue
+                        else:
+                            i += 1
+                            break
+                    elif text[i] == '\\' and i + 1 < n and text[i + 1] == '\n':
+                        result[i] = ' '
+                        result[i + 1] = ' '
+                        i += 2
+                    else:
+                        i += 1
+
             else:
                 i += 1
+
         return "".join(result)
 
     def tokenize(self):

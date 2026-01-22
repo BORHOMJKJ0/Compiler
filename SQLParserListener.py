@@ -134,6 +134,15 @@ class SQLParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by SQLParser#dropStatement.
+    def enterDropStatement(self, ctx:SQLParser.DropStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#dropStatement.
+    def exitDropStatement(self, ctx:SQLParser.DropStatementContext):
+        pass
+
+
     # Enter a parse tree produced by SQLParser#truncateStatement.
     def enterTruncateStatement(self, ctx:SQLParser.TruncateStatementContext):
         pass
@@ -143,12 +152,48 @@ class SQLParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by SQLParser#useStatement.
+    def enterUseStatement(self, ctx:SQLParser.UseStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#useStatement.
+    def exitUseStatement(self, ctx:SQLParser.UseStatementContext):
+        pass
+
+
     # Enter a parse tree produced by SQLParser#dmlStatement.
     def enterDmlStatement(self, ctx:SQLParser.DmlStatementContext):
         pass
 
     # Exit a parse tree produced by SQLParser#dmlStatement.
     def exitDmlStatement(self, ctx:SQLParser.DmlStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#cteStatement.
+    def enterCteStatement(self, ctx:SQLParser.CteStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#cteStatement.
+    def exitCteStatement(self, ctx:SQLParser.CteStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#cteList.
+    def enterCteList(self, ctx:SQLParser.CteListContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#cteList.
+    def exitCteList(self, ctx:SQLParser.CteListContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#cteDefinition.
+    def enterCteDefinition(self, ctx:SQLParser.CteDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#cteDefinition.
+    def exitCteDefinition(self, ctx:SQLParser.CteDefinitionContext):
         pass
 
 
@@ -383,6 +428,78 @@ class SQLParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by SQLParser#execStatement.
     def exitExecStatement(self, ctx:SQLParser.ExecStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#cursorStatement.
+    def enterCursorStatement(self, ctx:SQLParser.CursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#cursorStatement.
+    def exitCursorStatement(self, ctx:SQLParser.CursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#declareCursorStatement.
+    def enterDeclareCursorStatement(self, ctx:SQLParser.DeclareCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#declareCursorStatement.
+    def exitDeclareCursorStatement(self, ctx:SQLParser.DeclareCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#cursorOptions.
+    def enterCursorOptions(self, ctx:SQLParser.CursorOptionsContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#cursorOptions.
+    def exitCursorOptions(self, ctx:SQLParser.CursorOptionsContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#openCursorStatement.
+    def enterOpenCursorStatement(self, ctx:SQLParser.OpenCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#openCursorStatement.
+    def exitOpenCursorStatement(self, ctx:SQLParser.OpenCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#fetchCursorStatement.
+    def enterFetchCursorStatement(self, ctx:SQLParser.FetchCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#fetchCursorStatement.
+    def exitFetchCursorStatement(self, ctx:SQLParser.FetchCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#variableList.
+    def enterVariableList(self, ctx:SQLParser.VariableListContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#variableList.
+    def exitVariableList(self, ctx:SQLParser.VariableListContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#closeCursorStatement.
+    def enterCloseCursorStatement(self, ctx:SQLParser.CloseCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#closeCursorStatement.
+    def exitCloseCursorStatement(self, ctx:SQLParser.CloseCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by SQLParser#deallocateCursorStatement.
+    def enterDeallocateCursorStatement(self, ctx:SQLParser.DeallocateCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by SQLParser#deallocateCursorStatement.
+    def exitDeallocateCursorStatement(self, ctx:SQLParser.DeallocateCursorStatementContext):
         pass
 
 

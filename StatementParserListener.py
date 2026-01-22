@@ -125,6 +125,15 @@ class StatementParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by StatementParser#dropStatement.
+    def enterDropStatement(self, ctx:StatementParser.DropStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#dropStatement.
+    def exitDropStatement(self, ctx:StatementParser.DropStatementContext):
+        pass
+
+
     # Enter a parse tree produced by StatementParser#truncateStatement.
     def enterTruncateStatement(self, ctx:StatementParser.TruncateStatementContext):
         pass
@@ -134,12 +143,48 @@ class StatementParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by StatementParser#useStatement.
+    def enterUseStatement(self, ctx:StatementParser.UseStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#useStatement.
+    def exitUseStatement(self, ctx:StatementParser.UseStatementContext):
+        pass
+
+
     # Enter a parse tree produced by StatementParser#dmlStatement.
     def enterDmlStatement(self, ctx:StatementParser.DmlStatementContext):
         pass
 
     # Exit a parse tree produced by StatementParser#dmlStatement.
     def exitDmlStatement(self, ctx:StatementParser.DmlStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#cteStatement.
+    def enterCteStatement(self, ctx:StatementParser.CteStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#cteStatement.
+    def exitCteStatement(self, ctx:StatementParser.CteStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#cteList.
+    def enterCteList(self, ctx:StatementParser.CteListContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#cteList.
+    def exitCteList(self, ctx:StatementParser.CteListContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#cteDefinition.
+    def enterCteDefinition(self, ctx:StatementParser.CteDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#cteDefinition.
+    def exitCteDefinition(self, ctx:StatementParser.CteDefinitionContext):
         pass
 
 
@@ -374,6 +419,78 @@ class StatementParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by StatementParser#execStatement.
     def exitExecStatement(self, ctx:StatementParser.ExecStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#cursorStatement.
+    def enterCursorStatement(self, ctx:StatementParser.CursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#cursorStatement.
+    def exitCursorStatement(self, ctx:StatementParser.CursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#declareCursorStatement.
+    def enterDeclareCursorStatement(self, ctx:StatementParser.DeclareCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#declareCursorStatement.
+    def exitDeclareCursorStatement(self, ctx:StatementParser.DeclareCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#cursorOptions.
+    def enterCursorOptions(self, ctx:StatementParser.CursorOptionsContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#cursorOptions.
+    def exitCursorOptions(self, ctx:StatementParser.CursorOptionsContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#openCursorStatement.
+    def enterOpenCursorStatement(self, ctx:StatementParser.OpenCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#openCursorStatement.
+    def exitOpenCursorStatement(self, ctx:StatementParser.OpenCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#fetchCursorStatement.
+    def enterFetchCursorStatement(self, ctx:StatementParser.FetchCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#fetchCursorStatement.
+    def exitFetchCursorStatement(self, ctx:StatementParser.FetchCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#variableList.
+    def enterVariableList(self, ctx:StatementParser.VariableListContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#variableList.
+    def exitVariableList(self, ctx:StatementParser.VariableListContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#closeCursorStatement.
+    def enterCloseCursorStatement(self, ctx:StatementParser.CloseCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#closeCursorStatement.
+    def exitCloseCursorStatement(self, ctx:StatementParser.CloseCursorStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by StatementParser#deallocateCursorStatement.
+    def enterDeallocateCursorStatement(self, ctx:StatementParser.DeallocateCursorStatementContext):
+        pass
+
+    # Exit a parse tree produced by StatementParser#deallocateCursorStatement.
+    def exitDeallocateCursorStatement(self, ctx:StatementParser.DeallocateCursorStatementContext):
         pass
 
 

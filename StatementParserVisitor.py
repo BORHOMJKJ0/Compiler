@@ -74,13 +74,38 @@ class StatementParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by StatementParser#dropStatement.
+    def visitDropStatement(self, ctx:StatementParser.DropStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by StatementParser#truncateStatement.
     def visitTruncateStatement(self, ctx:StatementParser.TruncateStatementContext):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by StatementParser#useStatement.
+    def visitUseStatement(self, ctx:StatementParser.UseStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by StatementParser#dmlStatement.
     def visitDmlStatement(self, ctx:StatementParser.DmlStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#cteStatement.
+    def visitCteStatement(self, ctx:StatementParser.CteStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#cteList.
+    def visitCteList(self, ctx:StatementParser.CteListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#cteDefinition.
+    def visitCteDefinition(self, ctx:StatementParser.CteDefinitionContext):
         return self.visitChildren(ctx)
 
 
@@ -211,6 +236,46 @@ class StatementParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by StatementParser#execStatement.
     def visitExecStatement(self, ctx:StatementParser.ExecStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#cursorStatement.
+    def visitCursorStatement(self, ctx:StatementParser.CursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#declareCursorStatement.
+    def visitDeclareCursorStatement(self, ctx:StatementParser.DeclareCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#cursorOptions.
+    def visitCursorOptions(self, ctx:StatementParser.CursorOptionsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#openCursorStatement.
+    def visitOpenCursorStatement(self, ctx:StatementParser.OpenCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#fetchCursorStatement.
+    def visitFetchCursorStatement(self, ctx:StatementParser.FetchCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#variableList.
+    def visitVariableList(self, ctx:StatementParser.VariableListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#closeCursorStatement.
+    def visitCloseCursorStatement(self, ctx:StatementParser.CloseCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by StatementParser#deallocateCursorStatement.
+    def visitDeallocateCursorStatement(self, ctx:StatementParser.DeallocateCursorStatementContext):
         return self.visitChildren(ctx)
 
 

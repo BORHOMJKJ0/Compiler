@@ -79,13 +79,38 @@ class SQLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by SQLParser#dropStatement.
+    def visitDropStatement(self, ctx:SQLParser.DropStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by SQLParser#truncateStatement.
     def visitTruncateStatement(self, ctx:SQLParser.TruncateStatementContext):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by SQLParser#useStatement.
+    def visitUseStatement(self, ctx:SQLParser.UseStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by SQLParser#dmlStatement.
     def visitDmlStatement(self, ctx:SQLParser.DmlStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#cteStatement.
+    def visitCteStatement(self, ctx:SQLParser.CteStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#cteList.
+    def visitCteList(self, ctx:SQLParser.CteListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#cteDefinition.
+    def visitCteDefinition(self, ctx:SQLParser.CteDefinitionContext):
         return self.visitChildren(ctx)
 
 
@@ -216,6 +241,46 @@ class SQLParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by SQLParser#execStatement.
     def visitExecStatement(self, ctx:SQLParser.ExecStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#cursorStatement.
+    def visitCursorStatement(self, ctx:SQLParser.CursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#declareCursorStatement.
+    def visitDeclareCursorStatement(self, ctx:SQLParser.DeclareCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#cursorOptions.
+    def visitCursorOptions(self, ctx:SQLParser.CursorOptionsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#openCursorStatement.
+    def visitOpenCursorStatement(self, ctx:SQLParser.OpenCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#fetchCursorStatement.
+    def visitFetchCursorStatement(self, ctx:SQLParser.FetchCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#variableList.
+    def visitVariableList(self, ctx:SQLParser.VariableListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#closeCursorStatement.
+    def visitCloseCursorStatement(self, ctx:SQLParser.CloseCursorStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SQLParser#deallocateCursorStatement.
+    def visitDeallocateCursorStatement(self, ctx:SQLParser.DeallocateCursorStatementContext):
         return self.visitChildren(ctx)
 
 

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 10,
+            "activePatchIndex": 11,
             "patches": [
                 {
                     "date": 1768863805969,
@@ -48,6 +48,10 @@
                 {
                     "date": 1768893465220,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -64,8 +64,9 @@\n     | CONSTRAINT\r\n     | CONTAINS\r\n     | CONTINUE\r\n     | CONVERT\r\n+    | C\r\n     | CREATE\r\n     | CROSS\r\n     | CURRENT\r\n     | CURRENT_DATE\r\n"
+                },
+                {
+                    "date": 1769041069251,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -64,9 +64,9 @@\n     | CONSTRAINT\r\n     | CONTAINS\r\n     | CONTINUE\r\n     | CONVERT\r\n-    | C\r\n+    | CAST\r\n     | CREATE\r\n     | CROSS\r\n     | CURRENT\r\n     | CURRENT_DATE\r\n"
                 }
             ],
             "date": 1768863805969,

@@ -10,7 +10,7 @@ else:
 
 def serializedATN():
     return [
-        4,1,279,121,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,295,121,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,1,0,1,0,1,0,1,0,5,0,35,8,0,10,0,12,0,38,9,0,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,49,8,1,1,1,1,1,1,1,1,1,3,1,55,8,
@@ -20,22 +20,22 @@ def serializedATN():
         8,1,8,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,11,1,11,1,12,1,12,1,12,
         5,12,112,8,12,10,12,12,12,115,9,12,1,13,1,13,1,14,1,14,1,14,0,0,
         15,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,3,8,0,4,4,11,11,83,
-        83,89,89,94,94,101,101,114,114,279,279,3,0,102,102,273,274,278,278,
+        83,89,89,94,94,101,101,114,114,295,295,3,0,102,102,289,290,294,294,
         3,0,1,12,14,28,30,264,124,0,30,1,0,0,0,2,54,1,0,0,0,4,56,1,0,0,0,
         6,58,1,0,0,0,8,66,1,0,0,0,10,72,1,0,0,0,12,74,1,0,0,0,14,79,1,0,
         0,0,16,87,1,0,0,0,18,98,1,0,0,0,20,103,1,0,0,0,22,106,1,0,0,0,24,
         108,1,0,0,0,26,116,1,0,0,0,28,118,1,0,0,0,30,36,3,2,1,0,31,32,3,
         4,2,0,32,33,3,2,1,0,33,35,1,0,0,0,34,31,1,0,0,0,35,38,1,0,0,0,36,
         34,1,0,0,0,36,37,1,0,0,0,37,1,1,0,0,0,38,36,1,0,0,0,39,55,3,8,4,
-        0,40,55,3,14,7,0,41,55,3,16,8,0,42,55,3,10,5,0,43,55,5,276,0,0,44,
+        0,40,55,3,14,7,0,41,55,3,16,8,0,42,55,3,10,5,0,43,55,5,292,0,0,44,
         48,5,268,0,0,45,49,3,28,14,0,46,49,3,0,0,0,47,49,3,6,3,0,48,45,1,
         0,0,0,48,46,1,0,0,0,48,47,1,0,0,0,49,50,1,0,0,0,50,51,5,269,0,0,
-        51,55,1,0,0,0,52,53,5,279,0,0,53,55,3,2,1,0,54,39,1,0,0,0,54,40,
+        51,55,1,0,0,0,52,53,5,295,0,0,53,55,3,2,1,0,54,39,1,0,0,0,54,40,
         1,0,0,0,54,41,1,0,0,0,54,42,1,0,0,0,54,43,1,0,0,0,54,44,1,0,0,0,
         54,52,1,0,0,0,55,3,1,0,0,0,56,57,7,0,0,0,57,5,1,0,0,0,58,63,3,0,
         0,0,59,60,5,266,0,0,60,62,3,0,0,0,61,59,1,0,0,0,62,65,1,0,0,0,63,
         61,1,0,0,0,63,64,1,0,0,0,64,7,1,0,0,0,65,63,1,0,0,0,66,67,7,1,0,
-        0,67,9,1,0,0,0,68,73,5,277,0,0,69,73,5,275,0,0,70,73,5,274,0,0,71,
+        0,67,9,1,0,0,0,68,73,5,293,0,0,69,73,5,291,0,0,70,73,5,290,0,0,71,
         73,3,12,6,0,72,68,1,0,0,0,72,69,1,0,0,0,72,70,1,0,0,0,72,71,1,0,
         0,0,73,11,1,0,0,0,74,75,7,2,0,0,75,13,1,0,0,0,76,80,5,202,0,0,77,
         80,5,204,0,0,78,80,3,10,5,0,79,76,1,0,0,0,79,77,1,0,0,0,79,78,1,
@@ -183,9 +183,12 @@ class ExpressionParser ( Parser ):
                       "PARENT_OBJECT_ID", "EXECPT", "OBJECT_ID", "OBJECT_NAME", 
                       "OBJECT_SCHEMA_NAME", "TABLE_SCHEMA", "TABLE_NAME", 
                       "TABLE_TYPE", "VERSION", "DOT", "COMMA", "SEMI", "LPAREN", 
-                      "RPAREN", "LINE_COMMENT", "BLOCK_COMMENT", "WS", "STRING_SINGLE", 
-                      "STRING_DOUBLE", "BRACKET_IDENTIFIER", "VARIABLE", 
-                      "IDENTIFIER", "NUMBER", "OPERATOR" ]
+                      "RPAREN", "LOCAL", "GLOBAL", "FORWARD_ONLY", "SCROLL", 
+                      "STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", "READ_ONLY", 
+                      "SCROLL_LOCKS", "OPTIMISTIC", "NEXT", "PRIOR", "LAST", 
+                      "ABSOLUTE", "RELATIVE", "LINE_COMMENT", "BLOCK_COMMENT", 
+                      "WS", "STRING_SINGLE", "STRING_DOUBLE", "BRACKET_IDENTIFIER", 
+                      "VARIABLE", "IDENTIFIER", "NUMBER", "OPERATOR" ]
 
     RULE_expression = 0
     RULE_primary = 1
@@ -478,16 +481,32 @@ class ExpressionParser ( Parser ):
     SEMI=267
     LPAREN=268
     RPAREN=269
-    LINE_COMMENT=270
-    BLOCK_COMMENT=271
-    WS=272
-    STRING_SINGLE=273
-    STRING_DOUBLE=274
-    BRACKET_IDENTIFIER=275
-    VARIABLE=276
-    IDENTIFIER=277
-    NUMBER=278
-    OPERATOR=279
+    LOCAL=270
+    GLOBAL=271
+    FORWARD_ONLY=272
+    SCROLL=273
+    STATIC=274
+    KEYSET=275
+    DYNAMIC=276
+    FAST_FORWARD=277
+    READ_ONLY=278
+    SCROLL_LOCKS=279
+    OPTIMISTIC=280
+    NEXT=281
+    PRIOR=282
+    LAST=283
+    ABSOLUTE=284
+    RELATIVE=285
+    LINE_COMMENT=286
+    BLOCK_COMMENT=287
+    WS=288
+    STRING_SINGLE=289
+    STRING_DOUBLE=290
+    BRACKET_IDENTIFIER=291
+    VARIABLE=292
+    IDENTIFIER=293
+    NUMBER=294
+    OPERATOR=295
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -551,7 +570,7 @@ class ExpressionParser ( Parser ):
             self.state = 36
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==4 or _la==11 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & 2147747905) != 0) or _la==279:
+            while _la==4 or _la==11 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & 2147747905) != 0) or _la==295:
                 self.state = 31
                 self.binaryOp()
                 self.state = 32
@@ -783,7 +802,7 @@ class ExpressionParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 56
             _la = self._input.LA(1)
-            if not(_la==4 or _la==11 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & 2147747905) != 0) or _la==279):
+            if not(_la==4 or _la==11 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & 2147747905) != 0) or _la==295):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -915,7 +934,7 @@ class ExpressionParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 66
             _la = self._input.LA(1)
-            if not(_la==102 or ((((_la - 273)) & ~0x3f) == 0 and ((1 << (_la - 273)) & 35) != 0)):
+            if not(_la==102 or ((((_la - 289)) & ~0x3f) == 0 and ((1 << (_la - 289)) & 35) != 0)):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -977,17 +996,17 @@ class ExpressionParser ( Parser ):
             self.state = 72
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [277]:
+            if token in [293]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 68
                 self.match(ExpressionParser.IDENTIFIER)
                 pass
-            elif token in [275]:
+            elif token in [291]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 69
                 self.match(ExpressionParser.BRACKET_IDENTIFIER)
                 pass
-            elif token in [274]:
+            elif token in [290]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 70
                 self.match(ExpressionParser.STRING_DOUBLE)
@@ -1923,7 +1942,7 @@ class ExpressionParser ( Parser ):
             self.state = 83
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & -536879106) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & -1) != 0) or ((((_la - 128)) & ~0x3f) == 0 and ((1 << (_la - 128)) & -1) != 0) or ((((_la - 192)) & ~0x3f) == 0 and ((1 << (_la - 192)) & -1) != 0) or ((((_la - 256)) & ~0x3f) == 0 and ((1 << (_la - 256)) & 16650751) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & -536879106) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & -1) != 0) or ((((_la - 128)) & ~0x3f) == 0 and ((1 << (_la - 128)) & -1) != 0) or ((((_la - 192)) & ~0x3f) == 0 and ((1 << (_la - 192)) & -1) != 0) or ((((_la - 256)) & ~0x3f) == 0 and ((1 << (_la - 256)) & 1090921697791) != 0):
                 self.state = 82
                 self.expressionList()
 

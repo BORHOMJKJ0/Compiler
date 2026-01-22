@@ -9,16 +9,38 @@ class ExpressionBuilder:
         self.statement_builder = statement_builder
 
     def build_expression(self, ctx):
-        from Ast.expression_nodes import ParenthesizedExpressionNode, BinaryExpressionNode, VariableExpressionNode, LiteralExpressionNode
+        from Ast.expression_nodes import (
+            ParenthesizedExpressionNode,
+            BinaryExpressionNode,
+            VariableExpressionNode,
+            LiteralExpressionNode
+        )
 
         if hasattr(ctx, 'primary') and ctx.primary():
             primary = ctx.primary()
             if isinstance(primary, list):
-                if len(primary) > 0:
-                    primary = primary[0]
-                else:
-                    primary = None
-            if primary:
+                if len(primary) > 1:
+                    operators = []
+                    if hasattr(ctx, 'binaryOp') and ctx.binaryOp():
+                        binops = ctx.binaryOp()
+                        if isinstance(binops, list):
+                            operators = [op.getText() for op in binops]
+                        else:
+                            operators = [binops.getText()]
+                    elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+                        ops = ctx.OPERATOR()
+                        if isinstance(ops, list):
+                            operators = [op.getText() for op in ops]
+                        else:
+                            operators = [ops.getText()]
+
+                    if operators:
+                        return self._build_binary_expression_tree(primary, operators)
+                    else:
+                        return self.build_primary(primary[0])
+                elif len(primary) == 1:
+                    return self.build_primary(primary[0])
+            else:
                 return self.build_primary(primary)
 
         if hasattr(ctx, 'literal') and ctx.literal():
@@ -29,26 +51,44 @@ class ExpressionBuilder:
             return self.build_function_call(ctx.functionCall())
         elif hasattr(ctx, 'caseExpression') and ctx.caseExpression():
             return self.build_case_expression(ctx.caseExpression())
-        elif hasattr(ctx, 'LPAREN') and ctx.LPAREN() and hasattr(ctx, 'RPAREN') and ctx.RPAREN():
-            expression = self.build_expression(ctx.expression(0))
-            return ParenthesizedExpressionNode(expression=expression)
-        elif hasattr(ctx, 'binaryOp') and ctx.binaryOp():
-            expr_list = ctx.expression()
-            if expr_list and len(expr_list) == 2:
-                left = self.build_expression(expr_list[0])
-                operator = ctx.binaryOp().getText()
-                right = self.build_expression(expr_list[1])
-                return BinaryExpressionNode(left=left, operator=operator, right=right)
-        elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
-            expr_list = ctx.expression()
-            if expr_list and len(expr_list) == 2:
-                left = self.build_expression(expr_list[0])
-                operator = ctx.OPERATOR().getText()
-                right = self.build_expression(expr_list[1])
-                return BinaryExpressionNode(left=left, operator=operator, right=right)
         elif hasattr(ctx, 'VARIABLE') and ctx.VARIABLE():
             variableName = ctx.VARIABLE().getText()
             return VariableExpressionNode(variable_name=variableName)
+
+        elif hasattr(ctx, 'LPAREN') and ctx.LPAREN() and hasattr(ctx, 'RPAREN') and ctx.RPAREN():
+            if hasattr(ctx, 'expression'):
+                expr_list = ctx.expression()
+                if isinstance(expr_list, list) and len(expr_list) > 0:
+                    inner_expr = self.build_expression(expr_list[0])
+                elif not isinstance(expr_list, list):
+                    inner_expr = self.build_expression(expr_list)
+                else:
+                    inner_expr = None
+
+                if inner_expr:
+                    return ParenthesizedExpressionNode(expression=inner_expr)
+
+        elif hasattr(ctx, 'expression'):
+            expr_list = ctx.expression()
+            if isinstance(expr_list, list) and len(expr_list) >= 2:
+                left = self.build_expression(expr_list[0])
+                right = self.build_expression(expr_list[1])
+
+                operator = None
+                if hasattr(ctx, 'binaryOp') and ctx.binaryOp():
+                    operator = ctx.binaryOp().getText()
+                elif hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+                    operator = ctx.OPERATOR().getText()
+
+                if operator:
+                    return BinaryExpressionNode(left=left, operator=operator, right=right)
+                else:
+                    return left
+            elif isinstance(expr_list, list) and len(expr_list) == 1:
+                return self.build_expression(expr_list[0])
+            elif not isinstance(expr_list, list):
+                return self.build_expression(expr_list)
+
         elif hasattr(ctx, 'STRING_SINGLE') and ctx.STRING_SINGLE():
             value = ctx.STRING_SINGLE().getText()
             return LiteralExpressionNode(value=value, literal_type="STRING_SINGLE")
@@ -64,16 +104,51 @@ class ExpressionBuilder:
             text: str
         return UnknownExpressionNode(type="UnknownExpression", text=ctx.getText()[:50])
 
+    def _build_binary_expression_tree(self, primaries, operators):
+        from Ast.expression_nodes import BinaryExpressionNode
+
+        if len(primaries) == 0:
+            return None
+        if len(primaries) == 1:
+            return self.build_primary(primaries[0])
+
+        result = self.build_primary(primaries[0])
+
+        for i in range(len(operators)):
+            if i + 1 < len(primaries):
+                right = self.build_primary(primaries[i + 1])
+                result = BinaryExpressionNode(
+                    left=result,
+                    operator=operators[i],
+                    right=right
+                )
+
+        return result
+
     def build_primary(self, ctx):
-        from Ast.expression_nodes import LiteralExpressionNode, VariableExpressionNode, ColumnReferenceExpressionNode
+        from Ast.expression_nodes import (
+            LiteralExpressionNode,
+            VariableExpressionNode,
+            ColumnReferenceExpressionNode,
+            ParenthesizedExpressionNode
+        )
 
         if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
             if self.statement_builder:
                 return self.statement_builder.build_select(ctx.selectStatement())
-            else:
-                from builders.statement_builder import StatementBuilder
-                stmt_builder = StatementBuilder()
-                return stmt_builder.build_select(ctx.selectStatement())
+
+        if hasattr(ctx, 'LPAREN') and ctx.LPAREN():
+            if hasattr(ctx, 'expression') and ctx.expression():
+                expr = ctx.expression()
+                if isinstance(expr, list) and len(expr) > 0:
+                    inner = self.build_expression(expr[0])
+                elif not isinstance(expr, list):
+                    inner = self.build_expression(expr)
+                else:
+                    inner = None
+
+                if inner:
+                    return ParenthesizedExpressionNode(expression=inner)
 
         if hasattr(ctx, 'literal') and ctx.literal():
             lit = ctx.literal()
@@ -118,18 +193,20 @@ class ExpressionBuilder:
             else:
                 return self.build_expression(expr)
 
-        if hasattr(ctx, 'OPERATOR') and ctx.OPERATOR() and ctx.primary():
-            op = ctx.OPERATOR().getText()
-            inner = self.build_primary(ctx.primary())
-            if isinstance(inner, LiteralExpressionNode):
-                inner.value = op + inner.value
+        if hasattr(ctx, 'OPERATOR') and ctx.OPERATOR():
+            op_text = ctx.OPERATOR().getText()
+            if hasattr(ctx, 'primary') and ctx.primary():
+                inner = self.build_primary(ctx.primary())
+                if isinstance(inner, LiteralExpressionNode):
+                    inner.value = op_text + inner.value
+                    return inner
                 return inner
-            return inner
 
         return None
 
     def build_literal(self, ctx):
         from Ast.expression_nodes import LiteralExpressionNode
+
         if hasattr(ctx, 'NUMBER') and ctx.NUMBER():
             value = ctx.NUMBER().getText()
             return LiteralExpressionNode(value=value, literal_type="NUMBER")
@@ -139,46 +216,79 @@ class ExpressionBuilder:
         elif hasattr(ctx, 'STRING_DOUBLE') and ctx.STRING_DOUBLE():
             value = ctx.STRING_DOUBLE().getText()
             return LiteralExpressionNode(value=value, literal_type="STRING_DOUBLE")
+        elif hasattr(ctx, 'BINARY') and ctx.BINARY():
+            value = ctx.BINARY().getText()
+            return LiteralExpressionNode(value=value, literal_type="BINARY")
+        elif hasattr(ctx, 'HEX') and ctx.HEX():
+            value = ctx.HEX().getText()
+            return LiteralExpressionNode(value=value, literal_type="HEX")
         else:
             return LiteralExpressionNode(value=ctx.getText(), literal_type="KEYWORD")
 
     def build_column_reference(self, ctx):
         from Ast.expression_nodes import ColumnReferenceExpressionNode
+
         tableName = None
         columnName = None
+
         if hasattr(ctx, 'columnName') and ctx.columnName():
             if hasattr(ctx, 'tableName') and ctx.tableName():
                 tableName = self.build_table_name(ctx.tableName())
             columnName = ctx.columnName().getText()
         else:
             columnName = ctx.getText()
+
         return ColumnReferenceExpressionNode(table_name=tableName, column_name=columnName)
 
     def build_function_call(self, ctx):
         from Ast.expression_nodes import FunctionCallExpressionNode
+
         functionName = ctx.getChild(0).getText()
-        expressionList = self.build_expression_list(ctx.expressionList()) if hasattr(
-            ctx, 'expressionList') and ctx.expressionList() else None
+        expressionList = None
+
+        if hasattr(ctx, 'expressionList') and ctx.expressionList():
+            expressionList = self.build_expression_list(ctx.expressionList())
+
         return FunctionCallExpressionNode(function_name=functionName, arguments=expressionList)
 
     def build_expression_list(self, ctx):
         expressions = []
-        for expression in ctx.expression():
-            expr = self.build_expression(expression)
-            if expr is not None:
-                expressions.append(expr)
+
+        if hasattr(ctx, 'expression'):
+            expr_contexts = ctx.expression()
+
+            if isinstance(expr_contexts, list):
+                for expr_ctx in expr_contexts:
+                    expr = self.build_expression(expr_ctx)
+                    if expr is not None:
+                        expressions.append(expr)
+            else:
+                expr = self.build_expression(expr_contexts)
+                if expr is not None:
+                    expressions.append(expr)
+
         return expressions
 
     def build_case_expression(self, ctx):
         from Ast.expression_nodes import CaseExpressionNode
+
         whenClauseList = []
         if hasattr(ctx, 'whenClause'):
-            for whenClause in ctx.whenClause():
-                clause = self.build_when_clause(whenClause)
+            when_clauses = ctx.whenClause()
+            if isinstance(when_clauses, list):
+                for whenClause in when_clauses:
+                    clause = self.build_when_clause(whenClause)
+                    if clause is not None:
+                        whenClauseList.append(clause)
+            else:
+                clause = self.build_when_clause(when_clauses)
                 if clause is not None:
                     whenClauseList.append(clause)
-        elseClause = self.build_else_clause(ctx.elseClause()) if hasattr(
-            ctx, 'elseClause') and ctx.elseClause() else None
+
+        elseClause = None
+        if hasattr(ctx, 'elseClause') and ctx.elseClause():
+            elseClause = self.build_else_clause(ctx.elseClause())
+
         return CaseExpressionNode(
             keywordCase="CASE",
             whenClauseList=whenClauseList,
@@ -188,11 +298,18 @@ class ExpressionBuilder:
 
     def build_when_clause(self, ctx):
         from Ast.expression_nodes import WhenClauseNode
-        from .condition_builder import ConditionBuilder
+        from builders.condition_builder import ConditionBuilder
+
         condition_builder = ConditionBuilder(self.statement_builder)
 
-        condition = condition_builder.build_condition(ctx.condition())
-        expression = self.build_expression(ctx.expression())
+        condition = None
+        if hasattr(ctx, 'condition') and ctx.condition():
+            condition = condition_builder.build_condition(ctx.condition())
+
+        expression = None
+        if hasattr(ctx, 'expression') and ctx.expression():
+            expression = self.build_expression(ctx.expression())
+
         return WhenClauseNode(
             keywordWhen="WHEN",
             condition=condition,
@@ -202,17 +319,21 @@ class ExpressionBuilder:
 
     def build_else_clause(self, ctx):
         from Ast.expression_nodes import ElseClauseNode
-        expression = self.build_expression(ctx.expression())
+
+        expression = None
+        if hasattr(ctx, 'expression') and ctx.expression():
+            expression = self.build_expression(ctx.expression())
+
         return ElseClauseNode(keywordElse="ELSE", expression=expression)
 
     def build_table_name(self, ctx):
         text = ctx.getText()
         if '.' in text:
             parts = text.split('.')
-            schema = parts[0].strip('[]')
-            name = parts[-1].strip('[]')
+            schema = parts[0].strip('[]').strip('"')
+            name = parts[-1].strip('[]').strip('"')
         else:
             schema = None
-            name = text.strip('[]')
+            name = text.strip('[]').strip('"')
 
         return TableNameNode(schema=schema, name=name)
