@@ -294,11 +294,6 @@ class StatementParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by StatementParser#columnReference.
-    def visitColumnReference(self, ctx:StatementParser.ColumnReferenceContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by StatementParser#expressionList.
     def visitExpressionList(self, ctx:StatementParser.ExpressionListContext):
         return self.visitChildren(ctx)

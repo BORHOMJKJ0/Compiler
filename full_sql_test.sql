@@ -1,30 +1,25 @@
 
-SELECT * from EmployeeMaster WHERE salary IS NULL
-
-SELECT * from EmployeeMaster WHERE employeename LIKE 'super'
-
-SELECT * from EmployeeMaster WHERE employeename LIKE 'super''\\\\AZ\
-c'
-
-SELECT * from EmployeeMaster WHERE employeename LIKE 'super''\\\\AZ
-c'
-
-SELECT * from EmployeeMaster WHERE employeename LIKE 'sup%'
-
-SELECT * from EmployeeMaster WHERE employeename LIKE '%man'
+SELECT * from EmployeeMaster WHERE salary IS NOT NULL
 
 SELECT * from EmployeeMaster WHERE employeename NOT LIKE '%ra%'
 
-/*will return 8 letter names starting with Su, containing p or j in between and ending in erman*/
-SELECT * from EmployeeMaster WHERE employeename LIKE 'Su[pj]erman%'
-
-/*will return 4 letter names starting with ra, containing n or j in between and ending in u*/
-SELECT * from EmployeeMaster WHERE employeename LIKE 'ra[nj]u%'
-
-/*will return 4 letter names starting with ra, NOT containing n or j in between and ending in u*/
-SELECT * from EmployeeMaster WHERE employeename LIKE 'ra[^nj]u%'
-
 SELECT * from EmployeeMaster WHERE employeename NOT LIKE 'raj%'
 
-select * from EmployeeMaster WHERE EXISTS
-(select * from EmployeeMaster where EmployeeName  LIKE 'superman')
+SELECT
+    [STG_TRACKING].[TRACKING_KEY],
+    [STG_TRACKING].[C_KEY],
+    [STG_TRACKING].USER_KEY,
+    [STG_TRACKING].ACTION_DATETIME,
+    [STG_TRACKING].SOURCE,
+    [STG_TRACKING].[ACTION],
+    [STG_TRACKING].[DESC]
+FROM [STG_TRACKING]
+INNER JOIN [USERS]
+    ON [USERS].USER_KEY = [STG_TRACKING].USER_KEY AND [USERS].[GROUP_KEY] IN (11,2,3,4)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM TRACKING 
+    WHERE TRACKING.[TRACKING_KEY] = [STG_TRACKING].[TRACKING_KEY]
+)
+
+GO
