@@ -301,11 +301,20 @@ class ExpressionBuilder:
                     expressions.append(expr)
 
         if not expressions and hasattr(ctx, 'getChildCount'):
+            from Ast.expression_nodes import LiteralExpressionNode
+
             for i in range(ctx.getChildCount()):
                 child = ctx.getChild(i)
+
+                token_text = None
                 if hasattr(child, 'getText'):
-                    text = child.getText()
-                    if text in [',', '(', ')']:
+                    token_text = child.getText()
+
+                    if token_text in [',', '(', ')']:
+                        continue
+
+                    if token_text == '*':
+                        expressions.append(LiteralExpressionNode(value='*', literal_type='OPERATOR'))
                         continue
 
                 if hasattr(child, 'getRuleIndex'):
@@ -313,7 +322,7 @@ class ExpressionBuilder:
                         expr = self.build_expression(child)
                         if expr is not None:
                             expressions.append(expr)
-                    except:
+                    except Exception:
                         pass
 
         return expressions
@@ -357,7 +366,13 @@ class ExpressionBuilder:
 
     def build_when_clause(self, ctx):
         from Ast.expression_nodes import WhenClauseNode
-        from builders.condition_builder import ConditionBuilder
+        try:
+            from builders.condition_builder import ConditionBuilder
+        except ImportError:
+            try:
+                from .condition_builder import ConditionBuilder  
+            except ImportError:
+                from condition_builder import ConditionBuilder  
 
         condition_builder = ConditionBuilder(self.statement_builder)
 

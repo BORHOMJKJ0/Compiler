@@ -6,7 +6,13 @@ class ConditionBuilder:
         self.statement_builder = statement_builder
 
     def build_condition(self, ctx):
-        from builders.expression_builder import ExpressionBuilder
+        try:
+            from builders.expression_builder import ExpressionBuilder
+        except ImportError:
+            try:
+                from .expression_builder import ExpressionBuilder  
+            except ImportError:
+                from expression_builder import ExpressionBuilder  
         from Ast.condition_nodes import (
             BinaryConditionNode,
             LogicalConditionNode,

@@ -1,5 +1,13 @@
-from builders.expression_builder import ExpressionBuilder
-from builders.condition_builder import ConditionBuilder
+try:
+    from builders.expression_builder import ExpressionBuilder
+    from builders.condition_builder import ConditionBuilder
+except ImportError:
+    try:
+        from .expression_builder import ExpressionBuilder
+        from .condition_builder import ConditionBuilder
+    except ImportError:
+        from expression_builder import ExpressionBuilder
+        from condition_builder import ConditionBuilder
 
 
 class StatementBuilder:
