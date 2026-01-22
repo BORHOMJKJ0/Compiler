@@ -157,6 +157,10 @@ class ExpressionBuilder:
             else:
                 return self.build_literal(lit)
 
+        if hasattr(ctx, 'NUMBER') and ctx.NUMBER():
+            value = ctx.NUMBER().getText()
+            return LiteralExpressionNode(value=value, literal_type="NUMBER")
+
         if hasattr(ctx, 'identifier') and ctx.identifier():
             ident_ctx = ctx.identifier()
 
@@ -296,27 +300,53 @@ class ExpressionBuilder:
                 if expr is not None:
                     expressions.append(expr)
 
+        if not expressions and hasattr(ctx, 'getChildCount'):
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                if hasattr(child, 'getText'):
+                    text = child.getText()
+                    if text in [',', '(', ')']:
+                        continue
+
+                if hasattr(child, 'getRuleIndex'):
+                    try:
+                        expr = self.build_expression(child)
+                        if expr is not None:
+                            expressions.append(expr)
+                    except:
+                        pass
+
         return expressions
 
     def build_case_expression(self, ctx):
         from Ast.expression_nodes import CaseExpressionNode
 
         whenClauseList = []
-        if hasattr(ctx, 'whenClause'):
+        if hasattr(ctx, 'whenClause') and ctx.whenClause():
             when_clauses = ctx.whenClause()
             if isinstance(when_clauses, list):
                 for whenClause in when_clauses:
-                    clause = self.build_when_clause(whenClause)
+                    try:
+                        clause = self.build_when_clause(whenClause)
+                        if clause is not None:
+                            whenClauseList.append(clause)
+                    except Exception as e:
+                        print(f"Warning: Failed to build WHEN clause: {e}")
+                        continue
+            else:
+                try:
+                    clause = self.build_when_clause(when_clauses)
                     if clause is not None:
                         whenClauseList.append(clause)
-            else:
-                clause = self.build_when_clause(when_clauses)
-                if clause is not None:
-                    whenClauseList.append(clause)
+                except Exception as e:
+                    print(f"Warning: Failed to build WHEN clause: {e}")
 
         elseClause = None
         if hasattr(ctx, 'elseClause') and ctx.elseClause():
-            elseClause = self.build_else_clause(ctx.elseClause())
+            try:
+                elseClause = self.build_else_clause(ctx.elseClause())
+            except Exception as e:
+                print(f"Warning: Failed to build ELSE clause: {e}")
 
         return CaseExpressionNode(
             keywordCase="CASE",
@@ -332,12 +362,22 @@ class ExpressionBuilder:
         condition_builder = ConditionBuilder(self.statement_builder)
 
         condition = None
-        if hasattr(ctx, 'condition') and ctx.condition():
-            condition = condition_builder.build_condition(ctx.condition())
-
         expression = None
+
+        if hasattr(ctx, 'condition') and ctx.condition():
+            cond_ctx = ctx.condition()
+            if isinstance(cond_ctx, list) and len(cond_ctx) > 0:
+                condition = condition_builder.build_condition(cond_ctx[0])
+            else:
+                condition = condition_builder.build_condition(cond_ctx)
+
         if hasattr(ctx, 'expression') and ctx.expression():
-            expression = self.build_expression(ctx.expression())
+            expr_ctx = ctx.expression()
+            if isinstance(expr_ctx, list):
+                if len(expr_ctx) > 0:
+                    expression = self.build_expression(expr_ctx[-1])
+            else:
+                expression = self.build_expression(expr_ctx)
 
         return WhenClauseNode(
             keywordWhen="WHEN",

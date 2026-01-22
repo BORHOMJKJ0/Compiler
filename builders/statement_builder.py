@@ -465,15 +465,34 @@ class StatementBuilder:
         from Ast.statement_nodes import CTEStatementNode, CTEDefinitionNode
 
         cte_list = []
+
         if hasattr(ctx, 'cteList') and ctx.cteList():
             cte_list_ctx = ctx.cteList()
+
             if hasattr(cte_list_ctx, 'cteDefinition'):
                 cte_defs = cte_list_ctx.cteDefinition()
                 if isinstance(cte_defs, list):
                     for cte_def in cte_defs:
-                        cte_list.append(self.build_cte_definition(cte_def))
+                        try:
+                            cte_list.append(self.build_cte_definition(cte_def))
+                        except Exception as e:
+                            print(
+                                f"Warning: Failed to build CTE definition: {e}")
+                            continue
                 else:
-                    cte_list.append(self.build_cte_definition(cte_defs))
+                    try:
+                        cte_list.append(self.build_cte_definition(cte_defs))
+                    except Exception as e:
+                        print(f"Warning: Failed to build CTE definition: {e}")
+
+        elif hasattr(ctx, 'getChildCount'):
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                if hasattr(child, '__class__') and 'CteDefinition' in child.__class__.__name__:
+                    try:
+                        cte_list.append(self.build_cte_definition(child))
+                    except:
+                        continue
 
         statement = None
         if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
@@ -484,6 +503,19 @@ class StatementBuilder:
             statement = self.build_update(ctx.updateStatement())
         elif hasattr(ctx, 'deleteStatement') and ctx.deleteStatement():
             statement = self.build_delete(ctx.deleteStatement())
+
+        if statement is None and hasattr(ctx, 'getChildCount'):
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                class_name = child.__class__.__name__ if hasattr(
+                    child, '__class__') else ''
+                if 'Statement' in class_name and 'Cte' not in class_name:
+                    try:
+                        statement = self.build_statement(child)
+                        if statement:
+                            break
+                    except:
+                        continue
 
         return CTEStatementNode(
             keywordWith="WITH",
@@ -501,6 +533,8 @@ class StatementBuilder:
                 name = identifiers[0].getText()
             else:
                 name = identifiers.getText()
+        elif hasattr(ctx, 'cteName') and ctx.cteName():
+            name = ctx.cteName().getText()
 
         columns = None
         if hasattr(ctx, 'columnList') and ctx.columnList():
@@ -511,10 +545,26 @@ class StatementBuilder:
                     columns = [col.getText() for col in column_names]
                 else:
                     columns = [column_names.getText()]
+            elif hasattr(column_list, 'identifier'):
+                identifiers = column_list.identifier()
+                if isinstance(identifiers, list):
+                    columns = [id.getText() for id in identifiers]
+                else:
+                    columns = [identifiers.getText()]
 
         select_statement = None
         if hasattr(ctx, 'selectStatement') and ctx.selectStatement():
             select_statement = self.build_select(ctx.selectStatement())
+
+        if select_statement is None and hasattr(ctx, 'getChildCount'):
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                if hasattr(child, '__class__') and 'SelectStatement' in child.__class__.__name__:
+                    try:
+                        select_statement = self.build_select(child)
+                        break
+                    except:
+                        continue
 
         return CTEDefinitionNode(
             name=name,

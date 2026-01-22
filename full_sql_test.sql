@@ -1,16 +1,3 @@
-SELECT
-    [STG_TRACKING].[TRACKING_KEY],
-    [STG_TRACKING].[C_KEY],
-    [STG_TRACKING].USER_KEY,
-    [STG_TRACKING].ACTION_DATETIME,
-    [STG_TRACKING].SOURCE,
-    [STG_TRACKING].[ACTION],
-    [STG_TRACKING].[DESC]
-FROM [STG_TRACKING]
-INNER JOIN [USERS]
-    ON [USERS].USER_KEY = [STG_TRACKING].USER_KEY AND [USERS].[GROUP_KEY] IN (11,2,3,4)
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM TRACKING 
-    WHERE TRACKING.[TRACKING_KEY] = [STG_TRACKING].[TRACKING_KEY]
-)
+SELECT trainee.admission_no, trainee.first_name, trainee.last_name, fee.course, fee.amount  
+FROM trainee  
+FULL OUTER JOIN fee ON trainee.admission_no = fee.admission_no;

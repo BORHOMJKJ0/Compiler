@@ -230,9 +230,21 @@ class ConditionBuilder:
                 subquery = self.statement_builder.build_select(
                     ctx.selectStatement())
                 expression_list = [subquery]
+
+        elif hasattr(ctx, 'expressionList') and ctx.expressionList():
+            expression_list = expr_builder.build_expression_list(
+                ctx.expressionList())
+
+        elif hasattr(ctx, 'expression') and ctx.expression():
+            expr_list = ctx.expression()
+            if isinstance(expr_list, list) and len(expr_list) > 1:
+                for expr_ctx in expr_list[1:]:
+                    expression_list.append(
+                        expr_builder.build_expression(expr_ctx))
+
         elif hasattr(ctx, 'primary') and ctx.primary():
             primaries = ctx.primary()
-            if isinstance(primaries, list):
+            if isinstance(primaries, list) and len(primaries) > 1:
                 for p in primaries[1:]:
                     if hasattr(p, 'selectStatement') and p.selectStatement():
                         if self.statement_builder:
@@ -242,24 +254,6 @@ class ConditionBuilder:
                             break
                     else:
                         expression_list.append(expr_builder.build_primary(p))
-            else:
-                if hasattr(primaries, 'selectStatement') and primaries.selectStatement():
-                    if self.statement_builder:
-                        subquery = self.statement_builder.build_select(
-                            primaries.selectStatement())
-                        expression_list = [subquery]
-
-        if not expression_list:
-            if hasattr(ctx, 'expressionList') and ctx.expressionList():
-                expression_list = expr_builder.build_expression_list(
-                    ctx.expressionList())
-            elif hasattr(ctx, 'LPAREN') and hasattr(ctx, 'RPAREN'):
-                if hasattr(ctx, 'expression') and ctx.expression():
-                    expr_list = ctx.expression()
-                    if isinstance(expr_list, list) and len(expr_list) > 1:
-                        for expr_ctx in expr_list[1:]:
-                            expression_list.append(
-                                expr_builder.build_expression(expr_ctx))
 
         keyword_not = None
         if hasattr(ctx, 'NOT') and ctx.NOT():
